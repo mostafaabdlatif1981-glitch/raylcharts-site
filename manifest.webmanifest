@@ -1,0 +1,49 @@
+{
+ "name": "RAYL • البورصة المصرية بجد",
+ "short_name": "RAYL",
+ "description": "أخبار وتقارير وحركة الكبار في البورصة المصرية ببساطة وبالعامية",
+ "start_url": "/?src=app",
+ "scope": "/",
+ "display": "standalone",
+ "dir": "rtl",
+ "lang": "ar",
+ "background_color": "#EAF6EC",
+ "theme_color": "#14532D",
+ "orientation": "portrait",
+ "icons": [
+  {
+   "src": "/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "/maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ],
+ "shortcuts": [
+  {
+   "name": "السوق اليوم",
+   "url": "/market.html"
+  },
+  {
+   "name": "حركة الكبار",
+   "url": "/bigmoney.html"
+  },
+  {
+   "name": "تقارير الأسهم",
+   "url": "/reports.html"
+  },
+  {
+   "name": "الأخبار",
+   "url": "/news.html"
+  }
+ ]
+}
