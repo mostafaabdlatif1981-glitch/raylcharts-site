@@ -14,6 +14,7 @@ async function accessToken(sa) {
 export async function onRequestPost({ request, env }) {
   if (!env.SEND_KEY || request.headers.get('x-key') !== env.SEND_KEY) return new Response('no', { status: 403 });
   const m = await request.json();
+  if (m.remove_alert) { const all = JSON.parse((await env.SUBS.get('alerts')) || '[]').filter(x => x.id !== String(m.remove_alert)); await env.SUBS.put('alerts', JSON.stringify(all)); return Response.json({ removed: m.remove_alert }); }
   // تنبيه إفصاح مهم: يتحفظ عشان يظهر في مربع «تنبيه هام» على الموقع
   if (m.alert) {
     const a = m.alert; const day = new Date(Date.now() + 2 * 3600e3).toISOString().slice(0, 10);
