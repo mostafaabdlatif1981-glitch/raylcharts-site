@@ -14,6 +14,17 @@ async function accessToken(sa) {
 export async function onRequestPost({ request, env }) {
   if (!env.SEND_KEY || request.headers.get('x-key') !== env.SEND_KEY) return new Response('no', { status: 403 });
   const m = await request.json();
+  // تنبيه إفصاح مهم: يتحفظ عشان يظهر في مربع «تنبيه هام» على الموقع
+  if (m.alert) {
+    const a = m.alert; const day = new Date(Date.now() + 2 * 3600e3).toISOString().slice(0, 10);
+    const item = { id: String(a.id || Date.now()), day, time: String(a.time || ''), sym: String(a.sym || ''), company: String(a.company || ''), kind: String(a.kind || 'إفصاح'), text: String(a.text || '') };
+    const all = JSON.parse((await env.SUBS.get('alerts')) || '[]').filter(x => x.id !== item.id);
+    all.unshift(item); await env.SUBS.put('alerts', JSON.stringify(all.slice(0, 30)));
+    m.title = m.title || `📣 تنبيه هام: ${item.company}${item.sym ? ' (' + item.sym + ')' : ''}`;
+    m.body = m.body || `${item.time ? item.time + ' • ' : ''}${item.text}`;
+    m.tag = m.tag || 'alert-' + item.id; m.url = m.url || 'https://raylcharts.com/';
+    if (m.alert_only) return Response.json({ saved: item.id });
+  }
   const sa = JSON.parse(env.FCM_SA); const at = await accessToken(sa);
   const data = { title: String(m.title || 'RAYL'), body: String(m.body || ''), url: String(m.url || 'https://raylcharts.com/'), tag: String(m.tag || '') };
   let cursor, sent = 0, dead = 0, fail = 0;
