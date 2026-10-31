@@ -23,7 +23,7 @@ export async function onRequestPost({ request, env }) {
     all.unshift(item); await env.SUBS.put('alerts', JSON.stringify(all.slice(0, 30)));
     m.title = m.title || `📣 تنبيه هام: ${item.company}${item.sym ? ' (' + item.sym + ')' : ''}`;
     m.body = m.body || `${item.time ? item.time + ' • ' : ''}${item.text}`;
-    m.tag = m.tag || 'alert-' + item.id; m.url = m.url || 'https://raylcharts.com/';
+    m.tag = m.tag || 'alert-' + item.id; m.url = m.url || ('https://raylcharts.com/#alert=' + encodeURIComponent(JSON.stringify(item)));
     if (m.alert_only) return Response.json({ saved: item.id });
   }
   const sa = JSON.parse(env.FCM_SA); const at = await accessToken(sa);
