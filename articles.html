@@ -5,13 +5,87 @@
 <link rel="icon" href="favicon.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#14532D"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="RAYL">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playpen+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=1793438209"></head><body>
+<link rel="stylesheet" href="style.css?v=1793443234"></head><body>
 <header class="top"><div class="wrap"><div class="bar"><a class="brand" href="index.html"><svg aria-label="RAYL" xmlns="http://www.w3.org/2000/svg" viewBox="66 60 1190 326"><path fill="#14532D" d="M95,75 H330 C425,75 472,122 472,176 C472,236 426,272 362,272 H352 V165 H95 Z"/><path fill="#14532D" d="M258,318 L352,280 L428,380 L306,380 Z"/><path fill="#14532D" d="M72,262 L352,137.0 L352,179.0 L72,304 Z"/><path fill="#14532D" d="M72,326 L352,201.0 L352,255.0 L72,380 Z"/><circle cx="150" cy="289.17857142857144" r="33" fill="#FACC15" stroke="#0B3D2E" stroke-width="7"/><path fill="#14532D" fill-rule="evenodd" d="M440,380 L552,75 L662,75 L754,380 L656,380 L641,326 L556,326 L540,380 Z M577,262 L600,165 L624,262 Z"/><path fill="#14532D" d="M708,75 L812,75 L858,158 L904,75 L1004,75 L906,250 L906,380 L806,380 L806,250 Z"/><path fill="#14532D" d="M1022,75 L1122,75 L1122,306 L1250,306 L1250,380 L1022,380 Z"/></svg><em>@raylcharts</em></a>
 <button class="mbtn" aria-label="القايمة" onclick="document.querySelector('nav.menu').classList.toggle('open');this.classList.toggle('x')">☰ الأقسام</button><span class="tagline">اتعلم · افهم · استثمر • #بورصة_بجد</span></div><nav class="menu"><a href="index.html">🏠 الرئيسية</a><a href="news.html">📣 الأخبار</a><a href="market.html">📊 السوق اليوم</a><a href="indices.html">📈 المؤشرات</a><a href="trades.html">🔢 تعاملات اليوم</a><a href="reports.html">🔎 تقارير الأسهم</a><a href="articles.html" class=on>📝 مقالات</a><a href="bigmoney.html">🐋 حركة الكبار</a><a href="results.html">💰 نتايج الشركات</a><a href="ipo.html">🎟️ الاكتتابات</a><a href="videos.html">🎬 فيديوهات</a><a href="academy.html">🎓 أكاديمية رايل</a><a href="books.html">📚 معلومة من كتاب</a><a href="glossary.html">📖 قاموس البورصة</a></nav></div></header>
 <main><div id="alertbox" style="display:none"></div><script>(function(){var B=document.getElementById('alertbox');function gx(){try{return JSON.parse(localStorage.getItem('rayl_ax')||'[]')}catch(e){return[]}}function sx(v){try{localStorage.setItem('rayl_ax',JSON.stringify(v.slice(-60)))}catch(e){}}function E(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function load(){fetch('/api/alerts',{cache:'no-store'}).then(function(r){return r.json()}).then(function(L){var x=gx();L=L.filter(function(a){return x.indexOf(a.id)<0});var more=L.length-3;if(!window.__all)L=L.slice(0,3);if(window.__pin)L=L.filter(function(a){return a.id!==window.__pin});if(!L.length){if(!window.__pin)B.style.display='none';return}var pin=window.__pin?B.querySelector('.al[data-id="'+window.__pin+'"]'):null;B.innerHTML=(pin?pin.outerHTML:'')+L.map(function(a){return '<div class="al" data-id="'+E(a.id)+'"><b class="ax" title="قفل">✕</b><div class="ah">⚠️ تنبيه هام • '+E(a.kind)+'</div><div class="ac"><b>'+E(a.company)+'</b>'+(a.sym?' <span class="tk">'+E(a.sym)+'</span>':'')+(a.time?' <small>🕒 '+E(a.time)+'</small>':'')+'</div><div class="at">'+E(a.text)+'</div></div>'}).join('')+(more>0&&!window.__all?'<button class="amore">👇 عرض كل التنبيهات ('+(more+3)+')</button>':'')+(L.length>1?'<button class="aclr">✕ قفل الكل</button>':'');B.style.display='block'}).catch(function(){})}
 try{var hm=location.hash.match(/alert=([^&]+)/);if(hm){var it=JSON.parse(decodeURIComponent(hm[1]));var x0=gx().filter(function(v){return v!==it.id});sx(x0);B.innerHTML='<div class="al" data-id="'+E(it.id)+'"><b class="ax" title="قفل">✕</b><div class="ah">⚠️ تنبيه هام • '+E(it.kind)+'</div><div class="ac"><b>'+E(it.company)+'</b>'+(it.sym?' <span class="tk">'+E(it.sym)+'</span>':'')+(it.time?' <small>🕒 '+E(it.time)+'</small>':'')+'</div><div class="at">'+E(it.text)+'</div></div>';B.style.display='block';window.__pin=it.id;scrollTo(0,0)}}catch(e){}
-B.addEventListener('click',function(e){if(e.target.classList.contains('amore')){window.__all=1;load();return}if(e.target.classList.contains('aclr')){var xx=gx();[].forEach.call(B.querySelectorAll('.al'),function(d){xx.push(d.getAttribute('data-id'))});sx(xx);B.innerHTML='';B.style.display='none';return}if(!e.target.classList.contains('ax'))return;var d=e.target.parentNode,x=gx();x.push(d.getAttribute('data-id'));sx(x);d.remove();if(!B.querySelector('.al'))B.style.display='none'});load();setInterval(load,60000)})();</script><div class="wrap"><div class="backbar"><a href="index.html" onclick="if(history.length>1&&document.referrer.indexOf(location.host)>-1){history.back();return false}">→ رجوع</a><a href="index.html">🏠 الرئيسية</a></div><h1 class="pt"><span class="hl">📝 مقالات</span></h1><p class="sub">شرح أعمق لموضوعات تهم المستثمر: الصناديق، وإزاي تقرا النشرات والقوانين، بالأرقام ومن المصادر الرسمية.</p><section class="card"><h2>📋 كل المقالات</h2><ul><li><a href="#rate-hike"><b>فهم السوق</b>: رفع الفايدة 1%: مين من الشركات هيتضرر ومين هيستفيد؟ بالأرقام</a> <small>(الجمعة 30 أكتوبر 2026)</small></li><li><a href="#short-selling"><b>فهم السوق</b>: الشورت سيلينج في البورصة المصرية: يعني إيه، وهيتطبق إزاي، وينفعك ولا يضرك؟</a> <small>(الجمعة 30 أكتوبر 2026)</small></li><li><a href="#b70"><b>اعرف صندوقك • الحلقة 1</b>: فلوسك في الصندوق مضمونة؟ صندوق بلتون B-70 (المؤشر السبعيني)</a> <small>(التلات 20 أكتوبر 2026)</small></li></ul></section><section class="card day" id="rate-hike"><p class="meta" style="font-size:15px;opacity:.75">📅 الجمعة 30 أكتوبر 2026 • فهم السوق</p><h2>رفع الفايدة 1%: مين من الشركات هيتضرر ومين هيستفيد؟ بالأرقام</h2><p><b>حسبنا لكل شركة في البورصة ديونها والكاش اللي معاها وربحها، وطلّعنا التكلفة الزيادة اللي هتدفعها في السنة بعد قرار المركزي، ومين بالعكس هيكسب من الفايدة الأعلى. ومعاها مثال موبكو بالتفصيل.</b></p>
+B.addEventListener('click',function(e){if(e.target.classList.contains('amore')){window.__all=1;load();return}if(e.target.classList.contains('aclr')){var xx=gx();[].forEach.call(B.querySelectorAll('.al'),function(d){xx.push(d.getAttribute('data-id'))});sx(xx);B.innerHTML='';B.style.display='none';return}if(!e.target.classList.contains('ax'))return;var d=e.target.parentNode,x=gx();x.push(d.getAttribute('data-id'));sx(x);d.remove();if(!B.querySelector('.al'))B.style.display='none'});load();setInterval(load,60000)})();</script><div class="wrap"><div class="backbar"><a href="index.html" onclick="if(history.length>1&&document.referrer.indexOf(location.host)>-1){history.back();return false}">→ رجوع</a><a href="index.html">🏠 الرئيسية</a></div><h1 class="pt"><span class="hl">📝 مقالات</span></h1><p class="sub">شرح أعمق لموضوعات تهم المستثمر: الصناديق، وإزاي تقرا النشرات والقوانين، بالأرقام ومن المصادر الرسمية.</p><section class="card"><h2>📋 كل المقالات</h2><ul><li><a href="#start-guide"><b>دليل المبتدئ</b>: أول مرة تدخل البورصة؟ من فتح الحساب لأول سهم تشتريه</a> <small>(السبت 31 أكتوبر 2026)</small></li><li><a href="#rate-hike"><b>فهم السوق</b>: رفع الفايدة 1%: مين من الشركات هيتضرر ومين هيستفيد؟ بالأرقام</a> <small>(الجمعة 30 أكتوبر 2026)</small></li><li><a href="#short-selling"><b>فهم السوق</b>: الشورت سيلينج في البورصة المصرية: يعني إيه، وهيتطبق إزاي، وينفعك ولا يضرك؟</a> <small>(الجمعة 30 أكتوبر 2026)</small></li><li><a href="#b70"><b>اعرف صندوقك • الحلقة 1</b>: فلوسك في الصندوق مضمونة؟ صندوق بلتون B-70 (المؤشر السبعيني)</a> <small>(التلات 20 أكتوبر 2026)</small></li></ul></section><section class="card day" id="start-guide"><p class="meta" style="font-size:15px;opacity:.75">📅 السبت 31 أكتوبر 2026 • دليل المبتدئ</p><h2>أول مرة تدخل البورصة؟ من فتح الحساب لأول سهم تشتريه</h2><p><b>أكتر سؤال الناس بتسأله: «أبدأ في البورصة المصرية منين؟». جمعنالك الإجابة في 5 خطوات بالترتيب: تجهّز فلوسك، وتختار شركة سمسرة مرخّصة، وتفتح حسابك وتطلّع الكود الموحد، وتبدأ صغير، وأول شروة تكون صح. ومعاهم أشهر أخطاء المبتدئين وقايمة قبل ما تدوس «شراء».</b></p>
+<p class="note">📌 <b>الخلاصة في 4 سطور:</b> البورصة مش قمار ومش طريقة تغنى بيها بسرعة. هي مكان <b>تبقى فيه شريك في شركات حقيقية</b>. علشان تبدأ صح محتاج <b>5 خطوات</b>: تجهّز فلوس مش محتاجها قريب، وتختار <b>شركة سمسرة مرخّصة</b>، وتفتح حساب وتطلّع <b>الكود الموحد</b>، وتبدأ <b>بمبلغ صغير</b>، وأول شروة تكون <b>مدروسة</b> مش جاية من جروب توصيات.</p>
+
+<h3>1️⃣ قبل أي حاجة: إنت بتشتري إيه بالظبط؟</h3>
+<p>لما تشتري <b>سهم</b>، إنت بتشتري <b>حتة صغيرة من شركة</b>. لو الشركة كسبت وكبرت، سعر سهمها غالبًا بيطلع، وممكن توزّع عليك جزء من أرباحها فلوس (اسمه <b>كوبون</b>). ولو الشركة خسرت، سعر السهم بينزل وإنت بتخسر معاها.</p>
+<p>يعني السؤال الصح مش «السهم ده هيطلع بكرة؟»، السؤال الصح: <b>«أنا عايز أبقى شريك في الشركة دي؟»</b></p>
+<div class="two"><div class="box pos"><h3>✅ البورصة مناسبة لك لو</h3><ul><li>معاك فلوس <b>مش محتاجها</b> سنة أو أكتر.</li><li>عندك صبر وبتستحمل تشوف فلوسك نازلة شوية.</li><li>مستعد تتعلم وتقرا قبل ما تشتري.</li></ul></div>
+<div class="box neg"><h3>❌ استنى شوية لو</h3><ul><li>الفلوس دي هي <b>فلوس الطوارئ</b> أو مصاريف البيت.</li><li>الفلوس <b>مستلفة</b> أو عليك أقساط متأخرة.</li><li>عايز «تضاعف» فلوسك في شهرين.</li></ul></div></div>
+
+<h3>2️⃣ جهّز فلوسك صح</h3>
+<ul>
+<li><b>سيب فلوس طوارئ برّه البورصة</b>، مصاريف 3 لـ 6 شهور على الأقل في البنك.</li>
+<li><b>ماتستلفش علشان تشتري أسهم.</b> ولا من بنك، ولا من صاحبك، ولا «مارجن» من شركة السمسرة.</li>
+<li>ابدأ بمبلغ <b>لو خسرت جزء منه مايأثرش على حياتك</b>. مفيش حد أدنى كبير، ناس كتير بتبدأ بألف أو ألفين جنيه.</li>
+<li>بعد كده <b>زوّد كل شهر مبلغ ثابت</b>، وده أحسن بكتير من إنك تحط كل فلوسك مرة واحدة.</li>
+</ul>
+
+<h3>3️⃣ اختار شركة سمسرة مرخّصة</h3>
+<p>إنت مش بتشتري من البورصة مباشرة. لازم يكون في <b>شركة سمسرة</b> بتنفّذ أوامرك. ودي ممكن تكون <b>أبلكيشن على الموبايل</b> أو <b>فرع</b> تروحه.</p>
+<p>⚠️ <b>أهم حاجة:</b> اتأكد إن الشركة <b>مرخّصة من الهيئة العامة للرقابة المالية</b>، والقايمة موجودة على موقع الهيئة. أي حد بيقولك «ابعتلي الفلوس وأنا أشغلهالك» من غير شركة مرخّصة <b>ده نصب</b>.</p>
+<div style="break-inside:avoid"><table class="kv"><tr><th>قارن في</th><th>تسأل عن إيه</th></tr>
+<tr><td>العمولة</td><td>بياخدوا كام في كل عملية شرا أو بيع؟ وفيه مصاريف ثابتة على كل أمر؟</td></tr>
+<tr><td>الإيداع والسحب</td><td>بتحوّل الفلوس إزاي؟ وبتسحبها في كام يوم؟ وفيه رسوم؟</td></tr>
+<tr><td>التطبيق</td><td>سهل؟ بيعرض الأسعار لحظة بلحظة؟ فيه بيانات عن الشركات؟</td></tr>
+<tr><td>خدمة العملاء</td><td>لو حصلت مشكلة، هتلاقي حد يرد عليك بسرعة؟</td></tr></table></div>
+
+<h3>4️⃣ افتح الحساب وطلّع «الكود الموحد»</h3>
+<ul>
+<li><b>هتحتاج:</b> بطاقة رقم قومي سارية، ورقم موبايل باسمك، وغالبًا صورة سيلفي للتأكد من شخصيتك، وحساب بنكي أو وسيلة دفع تحوّل منها.</li>
+<li><b>الكود الموحد:</b> رقم ليك إنت في البورصة كلها، بيطلع من <b>شركة مصر للمقاصة</b> عن طريق شركة السمسرة. بيه تتسجل كل الأسهم اللي هتشتريها باسمك.</li>
+<li><b>المدة:</b> في الأبلكيشنات غالبًا من يوم لكام يوم، وفي الفروع ممكن تاخد أكتر شوية.</li>
+<li><b>السن:</b> من <b>21 سنة</b> تفتح حساب عادي. ومن <b>15 لـ 21 سنة</b> مسموح بشروط من الرقابة المالية: الفلوس تكون من شغلك أو مصروفك، وأقصى محفظة <b>40,000 جنيه</b>، ومن غير مارجن ولا شورت (قرار 286 لسنة 2024).</li>
+</ul>
+
+<h3>5️⃣ حوّل فلوس وابدأ صغير</h3>
+<p>أول ما الحساب يتفعّل، حوّل المبلغ اللي حددته. ونصيحتنا: <b>ماتصرفش كل المبلغ في أول يوم</b>. قسّمه على كذا مرة، علشان لو السوق نزل بعد ما اشتريت، يبقى معاك فلوس تشتري بسعر أقل.</p>
+<p>📅 التداول في البورصة المصرية من <b>الأحد للخميس</b>، والجلسة الصبح لحد بعد الضهر. والجمعة والسبت والأجازات الرسمية مفيش تداول.</p>
+
+<h3>6️⃣ أول شروة صح</h3>
+<ul>
+<li><b>ابدأ بالسهل:</b> صناديق المؤشرات بتخليك شريك في مجموعة شركات مرة واحدة، أو شركات كبيرة ومعروفة شغلها واضح.</li>
+<li><b>اقرا عن الشركة الأول:</b> بتكسب؟ أرباحها بتزيد ولا بتقل؟ عليها ديون كتير؟ (شرحنا ده في <b>الدرس الأول في أكاديمية رايل: التحليل الأساسي</b>).</li>
+<li><b>استخدم «أمر محدد السعر»:</b> إنت اللي تحدد هتشتري بكام، بدل «أمر السوق» اللي بيشتري بأي سعر متاح.</li>
+<li><b>نوّع:</b> ماتحطش كل فلوسك في سهم واحد. 3 لـ 5 شركات من قطاعات مختلفة بداية كويسة.</li>
+<li><b>حدد مدتك من الأول:</b> إنت مستثمر لسنين؟ ولا مضارب لأيام؟ وماتخلطش الاتنين ببعض.</li>
+</ul>
+
+<h3>7️⃣ أشهر 6 أخطاء بيقع فيها المبتدئ</h3>
+<div class="two"><div class="box neg"><h3>🚫 بلاش</h3><ul>
+<li>تشتري علشان <b>جروب توصيات</b> قال «السهم ده هيطير».</li>
+<li>تجري ورا سهم <b>طلع كتير</b> بعد ما الكل اشترى.</li>
+<li>تبيع في <b>يوم ذعر</b> علشان كل الناس بتبيع.</li>
+<li>تحط <b>كل فلوسك</b> في سهم واحد.</li>
+<li>تدخل <b>مارجن</b> وإنت لسه بتتعلم.</li>
+<li>تفضل تبص على الشاشة كل دقيقة وتبيع وتشتري كل يوم، والعمولات تاكل مكسبك.</li></ul></div>
+<div class="box pos"><h3>👍 اعمل كده</h3><ul>
+<li>اقرا <b>إفصاحات الشركة</b> ونتايجها بنفسك.</li>
+<li>اكتب <b>ليه اشتريت</b> كل سهم، وارجع للسبب ده قبل ما تبيع.</li>
+<li>استثمر <b>مبلغ ثابت كل شهر</b>.</li>
+<li>خلي جزء من فلوسك <b>كاش</b> للفرص.</li>
+<li>اتعلم حاجة جديدة كل أسبوع.</li>
+<li>اصبر. أغلب المكسب الحقيقي بييجي مع <b>الوقت</b>.</li></ul></div></div>
+
+<h3>8️⃣ قايمة قبل ما تدوس «شراء» ✍️</h3>
+<div style="break-inside:avoid"><table class="kv"><tr><th>السؤال</th><th>لازم الإجابة تكون</th></tr>
+<tr><td>الفلوس دي محتاجها السنة دي؟</td><td>لأ</td></tr>
+<tr><td>أعرف الشركة دي بتعمل إيه وبتكسب منين؟</td><td>أيوه</td></tr>
+<tr><td>أرباحها بتزيد في آخر سنتين؟</td><td>أيوه، أو أعرف السبب لو لأ</td></tr>
+<tr><td>لو السهم نزل 20%، هعمل إيه؟</td><td>عندي خطة مكتوبة</td></tr>
+<tr><td>السهم ده أكتر من ربع فلوسي؟</td><td>لأ</td></tr></table></div>
+
+<p class="calm">🎯 <b>الخلاصة:</b> البداية الصح أهم من البداية السريعة. ابدأ <b>صغير</b>، و<b>اتعلم</b> وإنت ماشي، وخلي هدفك إنك تبقى <b>شريك في شركات كويسة</b> لسنين، مش إنك تكسب في يوم.</p>
+<p class="calm">⏭️ <b>المقال الجاي:</b> «إزاي تعرف إن السهم حلال؟ المعايير الشرعية ببساطة». وبعده «بـ 5000 جنيه… تبدأ إزاي؟».</p>
+<p style="font-size:15px;opacity:.75">📚 المصادر: الهيئة العامة للرقابة المالية (قرار مجلس الإدارة 286 لسنة 2024 بشأن استثمار الشباب من 15 لـ 21 سنة)، البورصة المصرية، شركة مصر للمقاصة. المقال للتعليم ومش توصية بشرا أو بيع أي ورقة مالية.</p>
+<p><a class="more" href="articles/rayl_start_guide.pdf" target="_blank">📄 حمّل المقال PDF</a></p></section><section class="card day" id="rate-hike"><p class="meta" style="font-size:15px;opacity:.75">📅 الجمعة 30 أكتوبر 2026 • فهم السوق</p><h2>رفع الفايدة 1%: مين من الشركات هيتضرر ومين هيستفيد؟ بالأرقام</h2><p><b>حسبنا لكل شركة في البورصة ديونها والكاش اللي معاها وربحها، وطلّعنا التكلفة الزيادة اللي هتدفعها في السنة بعد قرار المركزي، ومين بالعكس هيكسب من الفايدة الأعلى. ومعاها مثال موبكو بالتفصيل.</b></p>
 <p class="note">📌 <b>الخلاصة:</b> البنك المركزي رفع الفايدة <b>1%</b> يوم الخميس 29 أكتوبر (الإيداع <b>20%</b> والإقراض <b>21%</b>). اللي هيتضرر أكتر هو الشركة اللي <b>ديونها أكبر من الكاش اللي معاها وأرباحها صغيرة</b>، زي القلعة وبلتون وليسيكو وراية وسوديك. واللي هيستفيد هو الشركة اللي <b>معاها كاش أكتر من ديونها</b>، زي أوراسكوم كونستراكشون وأبوقير وموبكو ومصر للألومنيوم، لأن فلوسها في البنك هتجيب فايدة أعلى. والبنوك غالبًا مستفيدة.</p>
 
 <h3>1️⃣ رفع الفايدة بيأثر على الشركة إزاي؟</h3>
@@ -223,7 +297,7 @@ B.addEventListener('click',function(e){if(e.target.classList.contains('amore')){
 <footer><div class="wrap">تابعونا على صفحاتنا عشان تعرفوا التحليلات والأخبار وتعاملات الكبار والجديد اللي بنقدمه
 <div class="links"><a href="https://www.facebook.com/profile.php?id=61594984812079">f فيسبوك RAYL</a><a href="https://x.com/raylcharts">X @raylcharts</a><a href="https://www.tiktok.com/@raylcharts">تيك توك @raylcharts</a><a href="https://whatsapp.com/channel/0029Vb9RmZQI1rccSaz0pF3t">قناة الواتساب</a><a href="mailto:info@raylcharts.com">info@raylcharts.com</a></div>
 <button id="pushbtn" class="pushbtn" style="display:none">🔔 فعّل الإشعارات: أول ما ننزل حاجة جديدة توصلك</button><br><small>RAYL محتوى تعليمي ومعلومات من مصادر رسمية • #بورصة_بجد</small></div></footer><div id="instbar" style="display:none;position:fixed;bottom:12px;left:12px;right:12px;z-index:90;background:#14532D;color:#fff;border-radius:16px;padding:10px 14px;align-items:center;gap:10px;font-weight:700;box-shadow:0 4px 16px #0004"><img src="icon-192.png" style="width:40px;height:40px;border-radius:10px"><span style="flex:1">نزّل تطبيق RAYL على موبايلك</span><button id="instbtn" style="font:inherit;font-weight:800;background:#FDE047;color:#14532D;border:0;border-radius:12px;padding:6px 14px">تنزيل</button><button id="instx" style="font:inherit;background:none;color:#fff;border:0;font-size:20px">✕</button></div>
-<script src="push.js?v=1793438209" defer></script><script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js')}
+<script src="push.js?v=1793443234" defer></script><script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js')}
 (function(){var dp,b=document.getElementById('instbar'),ios=/iphone|ipad|ipod/i.test(navigator.userAgent),sa=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;var no=false;try{no=localStorage.getItem('rayl_inst_x')}catch(e){}
 if(sa||no)return;var sp=b.querySelector('span'),bt=document.getElementById('instbtn');
 if(ios){sp.textContent='📲 حط RAYL على شاشتك: من Safari دوس زرار المشاركة ⬆️ وبعدين «إضافة إلى الشاشة الرئيسية»';bt.style.display='none';b.style.display='flex'}
