@@ -1,5 +1,5 @@
 // RAYL service worker: الصفحات من النت الأول (عشان التحديث اليومي)، والصور من الكاش
-const V = 'rayl-v5';
+const V = 'rayl-v6';
 self.addEventListener('install', e => { self.skipWaiting(); e.waitUntil(caches.open(V).then(c => c.addAll(['/', '/style.css', '/icon-192.png']))); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
