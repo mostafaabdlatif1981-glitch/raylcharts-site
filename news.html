@@ -26,4 +26,4 @@ document.getElementById('instx').onclick=function(){b.style.display='none';try{l
 function show(){im.src=L[k].src||L[k].href}
 document.addEventListener('click',function(e){var a=e.target.closest('.imgs img');if(!a)return;e.preventDefault();var g=a.closest('.imgs');L=[].slice.call(g.querySelectorAll('img'));k=L.indexOf(a);show();lb.classList.add('on')});
 lb.addEventListener('click',function(e){if(e.target.classList.contains('nx')){k=(k+1)%L.length;show()}else if(e.target.classList.contains('pv')){k=(k-1+L.length)%L.length;show()}else if(e.target!==im){lb.classList.remove('on')}});
-document.addEventListener('keydown',function(e){if(!lb.classList.contains('on'))return;if(e.key=='Escape')lb.classList.remove('on');if(e.key=='ArrowLeft'){k=(k+1)%L.length;show()}if(e.key=='ArrowRight'){k=(k-1+L.length)%L.length;show()}})})();</script></body></html>
+document.addEventListener('keydown',function(e){if(!lb.classList.contains('on'))return;if(e.key=='Escape')lb.classList.remove('on');if(e.key=='ArrowLeft'){k=(k+1)%L.length;show()}if(e.key=='ArrowRight'){k=(k-1+L.length)%L.length;show()}})})();</script><script src="acc.js?v=1"></script></body></html>
