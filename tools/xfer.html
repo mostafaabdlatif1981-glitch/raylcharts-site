@@ -1,8 +1,0 @@
-<!doctype html><meta charset="utf-8"><title>xfer</title><body>جاري التحميل...<script>
-(async()=>{const u=new URLSearchParams(location.search).get('u');
-const ok=/^https:\/\/raw\.githubusercontent\.com\/mostafaabdlatif1981-glitch\/raylcharts-site\/media-tmp\//.test(u);
-if(!ok){document.body.textContent='bad';return}
-const b=await (await fetch(u)).blob();
-window.opener.postMessage({rayl_xfer:1,name:u.split('/').pop(),blob:b},'*');
-document.body.textContent='تم';setTimeout(()=>window.close(),1500);})();
-</script>
