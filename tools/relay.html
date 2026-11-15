@@ -1,0 +1,4 @@
+<!doctype html><html><body style="font:20px sans-serif">جاري التحميل…<script>
+const u=new URLSearchParams(location.search).get('src');
+fetch(u).then(r=>r.blob()).then(b=>{document.body.innerText='sent '+b.size;(window.opener||parent).postMessage({rayl:1,blob:b,name:u.split('/').pop()},'*');setTimeout(()=>window.close(),2000)}).catch(e=>document.body.innerText='err '+e)
+</script></body></html>
