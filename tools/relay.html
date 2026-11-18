@@ -1,4 +1,7 @@
-<!doctype html><html><body style="font:20px sans-serif">جاري التحميل…<script>
-const u=new URLSearchParams(location.search).get('src');
-fetch(u).then(r=>r.blob()).then(b=>{document.body.innerText='sent '+b.size;(window.opener||parent).postMessage({rayl:1,blob:b,name:u.split('/').pop()},'*');setTimeout(()=>window.close(),2000)}).catch(e=>document.body.innerText='err '+e)
-</script></body></html>
+<!doctype html><meta charset="utf-8"><title>relay</title><body>relay
+<script>
+(async()=>{const u=new URLSearchParams(location.search).get('src');
+try{const r=await fetch(u,{cache:'no-store'});const b=await r.arrayBuffer();
+window.opener.postMessage({relay:1,name:u.split('/').pop(),buf:b},'*',[b]);document.body.textContent='sent '+b.byteLength;}
+catch(e){document.body.textContent='err '+e;}})();
+</script>
