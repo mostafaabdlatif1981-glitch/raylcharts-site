@@ -8,3 +8,5 @@
   Access-Control-Allow-Origin: *
 /media/nw1112_yt.mp4
   Access-Control-Allow-Origin: *
+/media/*
+  Access-Control-Allow-Origin: *
