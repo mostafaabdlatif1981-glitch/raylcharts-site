@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /learn-admin
 
 Sitemap: https://raylcharts.com/sitemap.xml

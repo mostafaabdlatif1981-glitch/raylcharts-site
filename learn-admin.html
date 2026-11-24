@@ -1,0 +1,46 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>إدارة الأكاديمية | RAYL</title>
+<meta name="description" content="RAYL — البورصة المصرية بجد: أخبار، تقارير، مؤشرات، حركة الكبار، ودروس بالعامية المصرية.">
+<link rel="icon" href="favicon.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#14532D"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="RAYL">
+<link rel="preload" href="fonts/playpen-sans-arabic-arabic-700-normal.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="fonts/playpen-sans-arabic-arabic-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/playpen-sans-arabic-arabic-400-normal.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="fonts.css?v=1">
+<meta name="robots" content="noindex"><style>
+body{background:#EAF6EC}.aw{max-width:1300px;margin:0 auto;padding:16px 12px 60px;font-size:19px}
+.box{background:#fff;border:3px solid #14532D;border-radius:20px;padding:18px;margin:12px 0}
+.box h2{margin:0 0 10px;font-size:26px}
+input,select,textarea{font-family:inherit;font-size:19px;padding:10px 12px;border:2px solid #14532D;border-radius:12px;margin:4px}
+textarea{width:100%;min-height:220px;direction:ltr;font-size:15px}
+button{font-family:inherit;font-size:18px;font-weight:800;background:#14532D;color:#fff;border:0;border-radius:12px;padding:10px 18px;margin:4px;cursor:pointer}
+button.r{background:#B91C1C}button.g{background:#fff;color:#14532D;border:2px solid #14532D}
+table{width:100%;border-collapse:collapse;font-size:17px}td,th{border-bottom:1px solid #14532d33;padding:8px;text-align:right}
+.code{direction:ltr;font-weight:800;letter-spacing:1px}.off{opacity:.45}
+#res{background:#fffbeb;border:3px solid #f59e0b;border-radius:16px;padding:14px;display:none;margin-top:10px;white-space:pre-wrap}
+</style></head><body><main class="aw">
+<div class="box" id="kb"><h2>🔐 دخول الإدارة</h2><input id="k" type="password" placeholder="مفتاح الإدارة" style="width:60%"><button id="kgo">دخول</button></div>
+<div id="adm" style="display:none">
+<div class="box"><h2>➕ مشترك جديد</h2>
+<input id="n" placeholder="الاسم"><input id="p" placeholder="الموبايل / واتساب" style="direction:ltr">
+<select id="pl"><option value="course">الكورس لوحده</option><option value="group">الكورس + الجروب</option></select>
+<select id="mx"><option value="2">جهازين</option><option value="1">جهاز واحد</option><option value="3">3 أجهزة</option></select>
+<input id="nt" placeholder="ملاحظة (رقم التحويل مثلًا)"><button id="add">اعمل كود</button>
+<div id="res"></div></div>
+<div class="box"><h2>👥 المشتركين <span id="cnt"></span></h2><input id="q" placeholder="دوّر بالاسم أو الكود أو الموبايل" style="width:50%"><button class="g" id="ref">تحديث</button>
+<table><thead><tr><th>الكود</th><th>الاسم</th><th>الموبايل</th><th>النوع</th><th>الأجهزة</th><th>آخر دخول</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>
+<div class="box"><h2>🎬 الحلقات المنشورة</h2><p style="font-size:16px">كل حلقة: {"n":رقم,"title":"العنوان","level":"b|m|a","file":"اسم الملف في R2","min":10,"train":false,"pub":true}</p>
+<textarea id="eps"></textarea><button id="saveeps">حفظ الحلقات</button> <span id="epsm"></span></div>
+</div></main>
+<script>
+(function(){var $=function(i){return document.getElementById(i)};var K='';try{K=sessionStorage.getItem('ra_k')||''}catch(e){}
+function api(o){return fetch('/api/ac/admin',{method:'POST',headers:{'content-type':'application/json','x-key':K},body:JSON.stringify(o)}).then(function(r){return r.json()})}
+var ALL=[];function esc(s){return String(s||'').replace(/[<>&]/g,function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;'}[c]})}
+function draw(){var q=$('q').value.trim().toLowerCase();var rows=ALL.filter(function(u){return !q||(u.code+u.name+u.phone).toLowerCase().indexOf(q)>=0});$('cnt').textContent='('+ALL.filter(function(u){return u.active}).length+' شغال من '+ALL.length+')';
+$('tb').innerHTML=rows.map(function(u){return '<tr class="'+(u.active?'':'off')+'"><td class="code">'+u.code+'</td><td>'+esc(u.name)+'</td><td style="direction:ltr">'+esc(u.phone)+'</td><td>'+(u.plan==='group'?'كورس + جروب':'كورس')+'</td><td>'+(u.devices||[]).length+'/'+(u.max||2)+'</td><td>'+(u.last?u.last.slice(0,16).replace('T',' '):'—')+'</td><td>'+(u.active?'<button class="r" data-op="disable" data-c="'+u.code+'">إيقاف</button>':'<button data-op="enable" data-c="'+u.code+'">تشغيل</button>')+'<button class="g" data-op="reset" data-c="'+u.code+'">تصفير الأجهزة</button></td></tr>'}).join('')}
+function load(){api({op:'list'}).then(function(r){if(!r.ok){$('kb').style.display='block';$('adm').style.display='none';return}$('kb').style.display='none';$('adm').style.display='block';ALL=r.users;draw()});api({op:'eps'}).then(function(r){if(r.ok)$('eps').value=JSON.stringify(r.eps,null,1)})}
+$('kgo').onclick=function(){K=$('k').value.trim();try{sessionStorage.setItem('ra_k',K)}catch(e){}load()};
+$('add').onclick=function(){if(!$('n').value.trim()){$('res').style.display='block';$('res').textContent='اكتب الاسم الأول';return};api({op:'add',name:$('n').value,phone:$('p').value,plan:$('pl').value,max:$('mx').value,note:$('nt').value}).then(function(r){if(!r.ok)return;var m='أهلًا '+r.user.name+' 👋\nأهلًا بيك في أكاديمية رايل 🎓\n\nكود الدخول بتاعك: '+r.code+'\nادخل من هنا: https://raylcharts.com/learn\nواكتب الكود مرة واحدة.\n\nالكود بيشتغل على '+r.user.max+' جهاز بالكتير، فما تديهوش لحد.\nالمحتوى تعليمي مش توصية.';$('res').style.display='block';$('res').textContent=m;$('res').onclick=function(){navigator.clipboard&&navigator.clipboard.writeText(m)};$('n').value=$('p').value=$('nt').value='';load()})};
+$('tb').onclick=function(e){var b=e.target.closest('button');if(!b)return;api({op:b.dataset.op,code:b.dataset.c}).then(load)};
+$('q').oninput=draw;$('ref').onclick=load;
+$('saveeps').onclick=function(){var v;try{v=JSON.parse($('eps').value)}catch(e){$('epsm').textContent='❌ الصيغة فيها غلط';return}api({op:'eps',eps:v}).then(function(r){$('epsm').textContent=r.ok?'✅ اتحفظ':'❌'})};
+if(K)load()})();
+</script></body></html>
