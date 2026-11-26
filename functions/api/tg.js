@@ -43,6 +43,40 @@ const PRICES = `💰 <b>الأسعار</b>
 
 اختار الباقة 👇`;
 
+const COURSE = `🎓 <b>كورس التحليل الفني فيديو — أكاديمية رايل</b>
+
+مش نسخة من الكورس الورقي. ده شرح أكبر وأعمق بكتير، بصوت رايل وبالشارتات والسلايدات، وكل مثال على أسهم حقيقية في البورصة المصرية.
+
+🎬 <b>46 حلقة</b> على 3 مستويات
+⏱️ كل حلقة هنحاول ما تزيدش عن <b>10 دقايق</b>، عشان تتفرج وتفهم من غير ما تزهق (حوالي 7 ساعات شرح في المجمل)
+✍️ <b>تدريبات بعد كل حلقة</b> تطبق فيها اللي اتعلمته بإيدك
+🆓 <b>الحلقة الأولى مجانية</b> للكل
+
+🟢 <b>المبتدئ (16 حلقة) — من الصفر خالص</b>
+• يعني إيه سهم، والشركة بتطرح ليه، والبورصة شغالة إزاي
+• الجلسة الاستكشافية والمزاد والإقفال الرسمي
+• أول سهم تشتريه خطوة بخطوة على التطبيق
+• الأمر المحدد والأمر بسعر السوق، وأوامر الشرا والبيع المتقدمة (وقف الخسارة وجني الربح وصلاحية الأمر)
+• الكوبون والأسهم المجانية وزيادة رأس المال، وليه السعر بيتعدل
+• السيولة، والشارت وأنواعه، والإطار الزمني، وتشريح الشمعة، والحجم
+
+🟡 <b>المتوسط (19 حلقة) — تقرا الشارت بنفسك</b>
+• نماذج الشموع كلها، كل نموذج في حلقة لوحده بأكتر من مثال حقيقي
+• الاتجاه، والدعم والمقاومة، والاختراق الحقيقي والكاذب
+• المتوسطات 20 و50 و100 و200، والتقاطع الذهبي وتقاطع الموت
+• النماذج الكلاسيكية (رأس وكتفين، القمم والقيعان المزدوجة، المثلثات والأعلام) والفجوات
+
+🔴 <b>المتقدم (11 حلقة) — تبني خطة كاملة</b>
+• RSI والانحراف، والماكد، وبولينجر وATR، وستوكاستك وADX، وفيبوناتشي
+• تحليل سهم من الأول للآخر
+• حجم المركز: تشتري كام سهم من غير ما تتحرق
+• العائد للمخاطرة والخطة المكتوبة قبل الدخول
+• الأخطاء اللي بتضيّع فلوس الناس، وعقلية المتداول
+
+📌 كل واحد يبدأ من مستواه: المبتدئ من الحلقة 1، واللي عارف الأساسيات من الحلقة 17، واللي فاهم الشارت من الحلقة 36.
+
+💰 الكورس لوحده 3,000 جنيه • مع الاشتراك السنوي بـ1,500 بس (الإجمالي 4,500 بدل 6,600)`;
+
 const kb = (rows) => ({ inline_keyboard: rows });
 async function tg(cfg, m, p) {
   const r = await fetch(`https://api.telegram.org/bot${cfg.token}/${m}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(p) });
@@ -53,7 +87,7 @@ const putS = (env, id, s) => env.SUBS.put('tgu_' + id, JSON.stringify(s));
 const esc = (s) => String(s || '').replace(/[<&>]/g, c => ({ '<': '&lt;', '&': '&amp;', '>': '&gt;' }[c]));
 
 function mainMenu() {
-  return kb([[{ text: '📋 الخدمات', callback_data: 'svc' }], [{ text: '💰 الأسعار والاشتراك', callback_data: 'prc' }]]);
+  return kb([[{ text: '📋 الخدمات', callback_data: 'svc' }], [{ text: '🎓 تفاصيل كورس التحليل الفني فيديو', callback_data: 'crs' }], [{ text: '💰 الأسعار والاشتراك', callback_data: 'prc' }]]);
 }
 
 export async function onRequestPost({ request, env }) {
@@ -91,8 +125,9 @@ async function handle(u, cfg, env) {
       }
       return;
     }
-    if (d === 'svc') return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: SERVICES, reply_markup: kb([[{ text: '💰 الأسعار والاشتراك', callback_data: 'prc' }]]) });
-    if (d === 'prc') return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: PRICES, reply_markup: kb([[{ text: '📅 شهري — 300', callback_data: 'p_m' }], [{ text: '🗓️ سنوي — 3,000', callback_data: 'p_y' }], [{ text: '🎓 سنوي + الكورس — 4,500', callback_data: 'p_yc' }]]) });
+    if (d === 'svc') return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: SERVICES, reply_markup: kb([[{ text: '🎓 تفاصيل الكورس', callback_data: 'crs' }], [{ text: '💰 الأسعار والاشتراك', callback_data: 'prc' }]]) });
+    if (d === 'crs') return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: COURSE, reply_markup: kb([[{ text: '💰 الأسعار والاشتراك', callback_data: 'prc' }], [{ text: '📋 الخدمات', callback_data: 'svc' }]]) });
+    if (d === 'prc') return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: PRICES, reply_markup: kb([[{ text: '📅 شهري — 300', callback_data: 'p_m' }], [{ text: '🗓️ سنوي — 3,000', callback_data: 'p_y' }], [{ text: '🎓 سنوي + الكورس — 4,500', callback_data: 'p_yc' }], [{ text: '🎓 تفاصيل الكورس', callback_data: 'crs' }]]) });
     if (d.startsWith('p_')) {
       const k = d.slice(2); if (!PLANS[k]) return; const s = await getS(env, from.id); s.plan = k; s.step = 'terms'; await putS(env, from.id, s);
       return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: `اخترت: <b>${PLANS[k].name}</b> — ${PLANS[k].price}\n\n⚠️ <b>قبل التحويل:</b> الاشتراك مفيهوش إلغاء ولا استرجاع بعد الدفع.`, reply_markup: kb([[{ text: '✅ موافق', callback_data: 'agree' }], [{ text: '↩️ رجوع للأسعار', callback_data: 'prc' }]]) });
