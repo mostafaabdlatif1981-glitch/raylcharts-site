@@ -191,20 +191,24 @@ async function handle(u, cfg, env) {
   if (m.photo || (m.document && /image|pdf/.test(m.document.mime_type || ''))) {
     if (!s.plan || !s.agreed) return tg(cfg, 'sendMessage', { chat_id: id, text: 'اختار الباقة الأول من الأزرار 👇', reply_markup: mainMenu() });
     s.receipt = m.photo ? { t: 'photo', f: m.photo[m.photo.length - 1].file_id } : { t: 'doc', f: m.document.file_id };
-    s.step = 'phone'; s.name = [m.from.first_name, m.from.last_name].filter(Boolean).join(' '); s.username = m.from.username || ''; await putS(env, id, s);
+    s.step = 'phone'; s.name = [m.from.first_name, m.from.last_name].filter(Boolean).join(' '); s.username = m.from.username || '';
+    // يوصل لمصطفى فورًا أول ما الصورة توصل
+    const plan0 = PLANS[s.plan];
+    const cap0 = `🆕 <b>وصل تحويل جديد</b>\n\nالباقة: <b>${plan0.name}</b>\nالمبلغ: ${plan0.price}\nالاسم: ${esc(s.name)}${s.username ? ' (@' + esc(s.username) + ')' : ''}\nرقم تليجرام: ${id}\nالرقم: ⏳ لسه بيبعته\n\nراجع وصول الفلوس الأول 👇`;
+    const rm0 = kb([[{ text: '✅ الفلوس وصلت', callback_data: 'ok_' + id }, { text: '❌ مش واصلة', callback_data: 'no_' + id }]]);
+    const r0 = s.receipt.t === 'photo' ? await tg(cfg, 'sendPhoto', { chat_id: cfg.admin, photo: s.receipt.f, caption: cap0, parse_mode: 'HTML', reply_markup: rm0 }) : await tg(cfg, 'sendDocument', { chat_id: cfg.admin, document: s.receipt.f, caption: cap0, parse_mode: 'HTML', reply_markup: rm0 });
+    s.adminMsg = r0 && r0.ok ? r0.result.message_id : null; s.sent = Date.now();
+    await putS(env, id, s);
     return tg(cfg, 'sendMessage', { chat_id: id, text: '👍 وصلت صورة الوصل. دوس الزرار تحت عشان تبعت رقمك (بكود دولتك أوتوماتيك) 👇', reply_markup: { keyboard: [[{ text: '📱 ابعت رقمي', request_contact: true }]], resize_keyboard: true, one_time_keyboard: true } });
   }
   if (m.contact) {
     if (m.contact.user_id && m.contact.user_id !== id) return tg(cfg, 'sendMessage', { chat_id: id, text: 'ابعت رقمك انت من الزرار 📱' });
     if (!s.receipt) return tg(cfg, 'sendMessage', { chat_id: id, text: 'ابعت صورة الوصل الأول 📸', reply_markup: { remove_keyboard: true } });
-    s.phone = '+' + String(m.contact.phone_number).replace(/^\+/, ''); s.step = 'review'; s.sent = Date.now(); await putS(env, id, s);
+    s.phone = '+' + String(m.contact.phone_number).replace(/^\+/, ''); s.step = 'review'; await putS(env, id, s);
     await tg(cfg, 'sendMessage', { chat_id: id, text: '✅ طلبك وصل. هنراجع التحويل ونبعتلك لينك القناة هنا أول ما المبلغ يوصل. شكرًا لثقتك 🙏', reply_markup: { remove_keyboard: true } });
-    const plan = PLANS[s.plan];
-    const cap = `🆕 <b>طلب اشتراك جديد</b>\n\nالباقة: <b>${plan.name}</b>\nالمبلغ: ${plan.price}\nالاسم: ${esc(s.name)}${s.username ? ' (@' + esc(s.username) + ')' : ''}\nالرقم: ${esc(s.phone)}\n\nراجع وصول الفلوس الأول 👇`;
-    const rm = kb([[{ text: '✅ الفلوس وصلت', callback_data: 'ok_' + id }, { text: '❌ مش واصلة', callback_data: 'no_' + id }]]);
-    if (s.receipt.t === 'photo') return tg(cfg, 'sendPhoto', { chat_id: cfg.admin, photo: s.receipt.f, caption: cap, parse_mode: 'HTML', reply_markup: rm });
-    return tg(cfg, 'sendDocument', { chat_id: cfg.admin, document: s.receipt.f, caption: cap, parse_mode: 'HTML', reply_markup: rm });
+    return tg(cfg, 'sendMessage', { chat_id: cfg.admin, parse_mode: 'HTML', text: `📱 رقم ${esc(s.name)}: <b>${esc(s.phone)}</b>`, ...(s.adminMsg ? { reply_to_message_id: s.adminMsg } : {}) });
   }
+  if (m.text && String(id) !== String(cfg.admin)) await tg(cfg, 'sendMessage', { chat_id: cfg.admin, parse_mode: 'HTML', text: `💬 <b>رسالة للبوت</b> من ${esc([m.from.first_name, m.from.last_name].filter(Boolean).join(' '))}${m.from.username ? ' (@' + esc(m.from.username) + ')' : ''}:\n${esc(m.text.slice(0, 500))}` });
   return tg(cfg, 'sendMessage', { chat_id: id, text: 'استخدم الأزرار تحت 👇', reply_markup: mainMenu() });
 }
 
