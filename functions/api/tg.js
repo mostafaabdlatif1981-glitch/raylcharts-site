@@ -130,6 +130,16 @@ async function logEv(env, u) {
   await env.SUBS.put('ev_' + String(ts).padStart(14, '0') + '_' + Math.random().toString(36).slice(2, 7), JSON.stringify(ev), { expirationTtl: 60 * 60 * 24 * 120 });
 }
 
+
+async function sendReq(cfg, env, id, s) {
+  const plan = PLANS[s.plan] || PLANS.m;
+  const cap = `🆕 <b>وصل تحويل</b>\n\nالباقة: <b>${plan.name}</b>\nالمبلغ: ${plan.price}\nالاسم: ${esc(s.name)}${s.username ? ' (@' + esc(s.username) + ')' : ''}\nرقم تليجرام: ${id}\nالرقم: ${s.phone ? esc(s.phone) : '⏳ لسه بيبعته'}\n\nراجع وصول الفلوس الأول 👇`;
+  const rm = kb([[{ text: '✅ الفلوس وصلت', callback_data: 'ok_' + id }, { text: '❌ مش واصلة', callback_data: 'no_' + id }]]);
+  const r = s.receipt.t === 'photo' ? await tg(cfg, 'sendPhoto', { chat_id: cfg.admin, photo: s.receipt.f, caption: cap, parse_mode: 'HTML', reply_markup: rm }) : await tg(cfg, 'sendDocument', { chat_id: cfg.admin, document: s.receipt.f, caption: cap, parse_mode: 'HTML', reply_markup: rm });
+  if (r && r.ok) { s.adminMsg = r.result.message_id; await putS(env, id, s); }
+  return r;
+}
+
 async function handle(u, cfg, env) {
   if (u.callback_query) {
     const q = u.callback_query, from = q.from, chat = q.message.chat.id, d = q.data || '';
@@ -201,11 +211,15 @@ async function handle(u, cfg, env) {
     await putS(env, id, s);
     return tg(cfg, 'sendMessage', { chat_id: id, text: '👍 وصلت صورة الوصل. دوس الزرار تحت عشان تبعت رقمك (بكود دولتك أوتوماتيك) 👇', reply_markup: { keyboard: [[{ text: '📱 ابعت رقمي', request_contact: true }]], resize_keyboard: true, one_time_keyboard: true } });
   }
+  if (!m.contact && m.text && s.receipt && !s.phone && /^\s*\+?[\d\s-]{8,16}\s*$/.test(m.text)) {
+    m.contact = { phone_number: m.text.replace(/[^\d+]/g, ''), user_id: id };
+  }
   if (m.contact) {
     if (m.contact.user_id && m.contact.user_id !== id) return tg(cfg, 'sendMessage', { chat_id: id, text: 'ابعت رقمك انت من الزرار 📱' });
     if (!s.receipt) return tg(cfg, 'sendMessage', { chat_id: id, text: 'ابعت صورة الوصل الأول 📸', reply_markup: { remove_keyboard: true } });
     s.phone = '+' + String(m.contact.phone_number).replace(/^\+/, ''); s.step = 'review'; await putS(env, id, s);
     await tg(cfg, 'sendMessage', { chat_id: id, text: '✅ طلبك وصل. هنراجع التحويل ونبعتلك لينك القناة هنا أول ما المبلغ يوصل. شكرًا لثقتك 🙏', reply_markup: { remove_keyboard: true } });
+    if (!s.adminMsg) return sendReq(cfg, env, id, s);
     return tg(cfg, 'sendMessage', { chat_id: cfg.admin, parse_mode: 'HTML', text: `📱 رقم ${esc(s.name)}: <b>${esc(s.phone)}</b>`, ...(s.adminMsg ? { reply_to_message_id: s.adminMsg } : {}) });
   }
   if (m.text && String(id) !== String(cfg.admin)) await tg(cfg, 'sendMessage', { chat_id: cfg.admin, parse_mode: 'HTML', text: `💬 <b>رسالة للبوت</b> من ${esc([m.from.first_name, m.from.last_name].filter(Boolean).join(' '))}${m.from.username ? ' (@' + esc(m.from.username) + ')' : ''}:\n${esc(m.text.slice(0, 500))}` });
@@ -216,6 +230,8 @@ async function handle(u, cfg, env) {
 export async function onRequestGet({ request, env }) {
   if (!env.SEND_KEY || request.headers.get('x-key') !== env.SEND_KEY) return new Response('no', { status: 403 });
   const cfg = JSON.parse((await env.SUBS.get('tg_cfg')) || '{}');
+  const nu = new URL(request.url).searchParams.get('notify');
+  if (nu) { const s = await getS(env, nu); if (!s.receipt) return new Response(JSON.stringify({ ok: false, step: s.step || null, plan: s.plan || null })); const r = await sendReq(cfg, env, nu, s); return new Response(JSON.stringify({ ok: !!(r && r.ok), phone: !!s.phone })); }
   const list = JSON.parse((await env.SUBS.get('tg_subs')) || '[]');
   const now = Date.now(); let n = 0;
   for (const x of list) {
