@@ -1,0 +1,143 @@
+// بوت رايل على تليجرام (@RaylChartsBot) — استقبال المشتركين بالأزرار + موافقة مصطفى + لينك دخول لشخص واحد.
+// الإعداد في KV (SUBS) تحت المفتاح tg_cfg: {token, admin, channel, secret, instapay}. بيتحط من /api/tgsetup (محمي بـ SEND_KEY).
+const PLANS = {
+  m: { name: 'اشتراك شهري', price: '300 جنيه', days: 30 },
+  y: { name: 'اشتراك سنوي', price: '3,000 جنيه (بدل 3,600)', days: 365 },
+  yc: { name: 'اشتراك سنوي + كورس التحليل الفني فيديو', price: '4,500 جنيه (3,000 اشتراك + الكورس بـ1,500 بدل 3,000)', days: 365 },
+};
+const START_TS = Date.UTC(2026, 11, 1) - 2 * 3600e3; // 1/12/2026 بتوقيت القاهرة
+
+const SERVICES = `📋 <b>خدمات مشتركين رايل</b>
+
+<b>⏱️ أثناء الجلسة</b>
+💰 حركة الكبار: سهم دخل فيه شرا كبير أو خرج منه بيع كبير
+📢 الإفصاحات المهمة أول ما تنزل (أعضاء مجلس إدارة، نتايج، مشروعات، أي خبر مؤثر)
+
+<b>📊 بعد الإقفال كل يوم</b>
+• أكتر الأسهم طلوعًا ونزولًا
+• القطاعات اللي الفلوس دخلت فيها وخرجت منها
+• الأسهم اللي الكبار دخلوا فيها وخرجوا منها
+• أسهم عالية المخاطرة والسبب بالأرقام
+• تنبيهات على أسهمك انت (تحت متوسط 20، فوق المتوسطات، قرّب من دعم أو مقاومة)
+
+<b>⭐ خاص بالمشتركين</b>
+🎬 فيديو يومي لملخص الجلسة بتفاصيل أكتر
+💼 محفظتين رايل مكشوفين (مضاربة واستثمار) بكل عملية شرا وبيع في نفس يومها
+📅 تقرير السوق الأسبوعي + كشف حساب توقعاتنا
+🃏 بطاقة سهم عند الطلب (سهمين في الشهر)
+🎙️ جلسة أسئلة وأجوبة أسبوعية
+
+📆 المحتوى بيبدأ ينزل في القناة من 1 ديسمبر 2026.`;
+
+const PRICES = `💰 <b>الأسعار</b>
+
+• شهري: <b>300 جنيه</b>
+• سنوي: <b>3,000 جنيه</b> دفعة واحدة (بدل 3,600 — شهرين ببلاش)
+• سنوي + كورس التحليل الفني فيديو: <b>4,500 جنيه</b> (الكورس بـ1,500 بدل 3,000 — الخصم للسنوي بس)
+
+اختار الباقة 👇`;
+
+const kb = (rows) => ({ inline_keyboard: rows });
+async function tg(cfg, m, p) {
+  const r = await fetch(`https://api.telegram.org/bot${cfg.token}/${m}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(p) });
+  return r.json();
+}
+const getS = async (env, id) => JSON.parse((await env.SUBS.get('tgu_' + id)) || '{}');
+const putS = (env, id, s) => env.SUBS.put('tgu_' + id, JSON.stringify(s));
+const esc = (s) => String(s || '').replace(/[<&>]/g, c => ({ '<': '&lt;', '&': '&amp;', '>': '&gt;' }[c]));
+
+function mainMenu() {
+  return kb([[{ text: '📋 الخدمات', callback_data: 'svc' }], [{ text: '💰 الأسعار والاشتراك', callback_data: 'prc' }]]);
+}
+
+export async function onRequestPost({ request, env }) {
+  const cfg = JSON.parse((await env.SUBS.get('tg_cfg')) || '{}');
+  if (!cfg.token || request.headers.get('x-telegram-bot-api-secret-token') !== cfg.secret) return new Response('no', { status: 403 });
+  const u = await request.json();
+  try { await handle(u, cfg, env); } catch (e) { /* نرجّع 200 عشان تليجرام ما يعيدش */ }
+  return new Response('ok');
+}
+
+async function handle(u, cfg, env) {
+  if (u.callback_query) {
+    const q = u.callback_query, from = q.from, chat = q.message.chat.id, d = q.data || '';
+    await tg(cfg, 'answerCallbackQuery', { callback_query_id: q.id });
+    // أزرار مصطفى على الطلبات
+    if (d.startsWith('ok_') || d.startsWith('no_')) {
+      if (String(from.id) !== String(cfg.admin)) return;
+      const uid = d.slice(3); const s = await getS(env, uid);
+      if (d.startsWith('ok_')) {
+        if (s.approved) return;
+        const plan = PLANS[s.plan] || PLANS.m;
+        const start = Math.max(Date.now(), START_TS);
+        const until = start + plan.days * 86400e3;
+        const link = await tg(cfg, 'createChatInviteLink', { chat_id: cfg.channel, name: ('u' + uid).slice(0, 32), member_limit: 1, expire_date: Math.floor(Date.now() / 1000) + 3 * 86400 });
+        if (!link.ok) { await tg(cfg, 'sendMessage', { chat_id: cfg.admin, text: '⚠️ ما قدرتش أعمل لينك: ' + (link.description || '') }); return; }
+        s.approved = Date.now(); s.until = until; s.link = link.result.invite_link; await putS(env, uid, s);
+        const list = JSON.parse((await env.SUBS.get('tg_subs')) || '[]'); list.push({ uid, plan: s.plan, until, name: s.name || '', phone: s.phone || '' }); await env.SUBS.put('tg_subs', JSON.stringify(list));
+        const untilStr = new Date(until + 2 * 3600e3).toISOString().slice(0, 10);
+        await tg(cfg, 'sendMessage', { chat_id: uid, parse_mode: 'HTML', text: `✅ <b>تم تفعيل اشتراكك في رايل</b>\n\nالباقة: ${plan.name}\nسارية لحد: ${untilStr}\n\nده لينك دخول القناة 👇 (ليك انت بس، بيشتغل مرة واحدة، وصالح 3 أيام)\n${s.link}${s.plan === 'yc' ? '\n\n🎓 هنبعتلك تفاصيل كورس التحليل الفني قريب.' : ''}` });
+        await tg(cfg, 'editMessageCaption', { chat_id: chat, message_id: q.message.message_id, parse_mode: 'HTML', caption: (q.message.caption || '') + `\n\n✅ اتفعّل لحد ${untilStr}` });
+      } else {
+        s.rejected = Date.now(); await putS(env, uid, s);
+        await tg(cfg, 'sendMessage', { chat_id: uid, text: '⏳ لسه التحويل ما وصلش لحسابنا. لو حوّلت فعلاً استنى شوية وابعت صورة الوصل تاني هنا، أو تواصل معانا.' });
+        await tg(cfg, 'editMessageCaption', { chat_id: chat, message_id: q.message.message_id, caption: (q.message.caption || '') + '\n\n❌ اتقاله إن الفلوس ما وصلتش' });
+      }
+      return;
+    }
+    if (d === 'svc') return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: SERVICES, reply_markup: kb([[{ text: '💰 الأسعار والاشتراك', callback_data: 'prc' }]]) });
+    if (d === 'prc') return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: PRICES, reply_markup: kb([[{ text: '📅 شهري — 300', callback_data: 'p_m' }], [{ text: '🗓️ سنوي — 3,000', callback_data: 'p_y' }], [{ text: '🎓 سنوي + الكورس — 4,500', callback_data: 'p_yc' }]]) });
+    if (d.startsWith('p_')) {
+      const k = d.slice(2); if (!PLANS[k]) return; const s = await getS(env, from.id); s.plan = k; s.step = 'terms'; await putS(env, from.id, s);
+      return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: `اخترت: <b>${PLANS[k].name}</b> — ${PLANS[k].price}\n\n⚠️ <b>قبل التحويل:</b> الاشتراك مفيهوش إلغاء ولا استرجاع بعد الدفع.`, reply_markup: kb([[{ text: '✅ موافق', callback_data: 'agree' }], [{ text: '↩️ رجوع للأسعار', callback_data: 'prc' }]]) });
+    }
+    if (d === 'agree') {
+      const s = await getS(env, from.id); if (!s.plan) return; s.step = 'receipt'; s.agreed = Date.now(); await putS(env, from.id, s);
+      return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: `💳 <b>طريقة الدفع</b>\n\nحوّل <b>${PLANS[s.plan].price.split(' (')[0]}</b> على إنستاباي (الأفضل لأنه بيوصل فورًا):\n${cfg.instapay || '—'}\n\n📸 بعد التحويل <b>ابعت صورة الوصل هنا</b> في الشات.\n\n🔒 لينك القناة بيتبعتلك بعد ما المبلغ يوصل ونتأكد منه، مش بمجرد الصورة.` });
+    }
+    return;
+  }
+
+  const m = u.message; if (!m || m.chat.type !== 'private') return;
+  const id = m.from.id;
+  if (m.text && m.text.startsWith('/start')) {
+    return tg(cfg, 'sendMessage', { chat_id: id, parse_mode: 'HTML', text: `أهلاً بيك في <b>رايل | RAYL</b> 👋\n\nاختار من الأزرار تحت عشان تعرف الخدمات والأسعار وتشترك.`, reply_markup: mainMenu() });
+  }
+  const s = await getS(env, id);
+  if (m.photo || (m.document && /image|pdf/.test(m.document.mime_type || ''))) {
+    if (!s.plan || !s.agreed) return tg(cfg, 'sendMessage', { chat_id: id, text: 'اختار الباقة الأول من الأزرار 👇', reply_markup: mainMenu() });
+    s.receipt = m.photo ? { t: 'photo', f: m.photo[m.photo.length - 1].file_id } : { t: 'doc', f: m.document.file_id };
+    s.step = 'phone'; s.name = [m.from.first_name, m.from.last_name].filter(Boolean).join(' '); s.username = m.from.username || ''; await putS(env, id, s);
+    return tg(cfg, 'sendMessage', { chat_id: id, text: '👍 وصلت صورة الوصل. دوس الزرار تحت عشان تبعت رقمك (بكود دولتك أوتوماتيك) 👇', reply_markup: { keyboard: [[{ text: '📱 ابعت رقمي', request_contact: true }]], resize_keyboard: true, one_time_keyboard: true } });
+  }
+  if (m.contact) {
+    if (m.contact.user_id && m.contact.user_id !== id) return tg(cfg, 'sendMessage', { chat_id: id, text: 'ابعت رقمك انت من الزرار 📱' });
+    if (!s.receipt) return tg(cfg, 'sendMessage', { chat_id: id, text: 'ابعت صورة الوصل الأول 📸', reply_markup: { remove_keyboard: true } });
+    s.phone = '+' + String(m.contact.phone_number).replace(/^\+/, ''); s.step = 'review'; s.sent = Date.now(); await putS(env, id, s);
+    await tg(cfg, 'sendMessage', { chat_id: id, text: '✅ طلبك وصل. هنراجع التحويل ونبعتلك لينك القناة هنا أول ما المبلغ يوصل. شكرًا لثقتك 🙏', reply_markup: { remove_keyboard: true } });
+    const plan = PLANS[s.plan];
+    const cap = `🆕 <b>طلب اشتراك جديد</b>\n\nالباقة: <b>${plan.name}</b>\nالمبلغ: ${plan.price}\nالاسم: ${esc(s.name)}${s.username ? ' (@' + esc(s.username) + ')' : ''}\nالرقم: ${esc(s.phone)}\n\nراجع وصول الفلوس الأول 👇`;
+    const rm = kb([[{ text: '✅ الفلوس وصلت', callback_data: 'ok_' + id }, { text: '❌ مش واصلة', callback_data: 'no_' + id }]]);
+    if (s.receipt.t === 'photo') return tg(cfg, 'sendPhoto', { chat_id: cfg.admin, photo: s.receipt.f, caption: cap, parse_mode: 'HTML', reply_markup: rm });
+    return tg(cfg, 'sendDocument', { chat_id: cfg.admin, document: s.receipt.f, caption: cap, parse_mode: 'HTML', reply_markup: rm });
+  }
+  return tg(cfg, 'sendMessage', { chat_id: id, text: 'استخدم الأزرار تحت 👇', reply_markup: mainMenu() });
+}
+
+// GET /api/tg?expire=1 (هيدر x-key = SEND_KEY): يطلّع اللي اشتراكهم خلص
+export async function onRequestGet({ request, env }) {
+  if (!env.SEND_KEY || request.headers.get('x-key') !== env.SEND_KEY) return new Response('no', { status: 403 });
+  const cfg = JSON.parse((await env.SUBS.get('tg_cfg')) || '{}');
+  const list = JSON.parse((await env.SUBS.get('tg_subs')) || '[]');
+  const now = Date.now(); let n = 0;
+  for (const x of list) {
+    if (x.until < now && !x.removed) {
+      await tg(cfg, 'banChatMember', { chat_id: cfg.channel, user_id: Number(x.uid) });
+      await tg(cfg, 'unbanChatMember', { chat_id: cfg.channel, user_id: Number(x.uid), only_if_banned: true });
+      await tg(cfg, 'sendMessage', { chat_id: Number(x.uid), text: '⏰ اشتراكك في رايل خلص. لو حابب تجدد دوس /start واختار الباقة.' });
+      x.removed = now; n++;
+    }
+  }
+  await env.SUBS.put('tg_subs', JSON.stringify(list));
+  return Response.json({ removed: n, total: list.length, active: list.filter(x => !x.removed).length });
+}
