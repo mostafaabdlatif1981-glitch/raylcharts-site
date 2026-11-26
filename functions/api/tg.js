@@ -236,6 +236,8 @@ export async function onRequestGet({ request, env }) {
   if (!env.SEND_KEY || request.headers.get('x-key') !== env.SEND_KEY) return new Response('no', { status: 403 });
   const cfg = JSON.parse((await env.SUBS.get('tg_cfg')) || '{}');
   const nu = new URL(request.url).searchParams.get('notify');
+  const ap = new URL(request.url).searchParams.get('approve');
+  if (ap) { const s0 = await getS(env, ap); if (!s0.receipt || s0.approved) return Response.json({ ok: false, receipt: !!s0.receipt, approved: !!s0.approved, plan: s0.plan || null }); await handle({ callback_query: { id: '0', from: { id: cfg.admin }, message: { chat: { id: cfg.admin }, message_id: 0, caption: '' }, data: 'ok_' + ap } }, cfg, env); const s1 = await getS(env, ap); return Response.json({ ok: !!s1.approved, plan: s1.plan, until: s1.until || null }); }
   if (nu) { const s = await getS(env, nu); if (!s.receipt) return new Response(JSON.stringify({ ok: false, step: s.step || null, plan: s.plan || null })); const r = await sendReq(cfg, env, nu, s); return new Response(JSON.stringify({ ok: !!(r && r.ok), phone: !!s.phone })); }
   const list = JSON.parse((await env.SUBS.get('tg_subs')) || '[]');
   const now = Date.now(); let n = 0;
