@@ -9,7 +9,7 @@ const START_TS = Date.UTC(2026, 11, 1) - 2 * 3600e3; // 1/12/2026 بتوقيت �
 
 const SERVICES = `📋 <b>خدمات مشتركين رايل</b> (كلها حصرية للمشتركين)
 
-⚡ كل التقارير والبيانات بتوصلك في القناة <b>قبل ما تنزل على الموقع بساعة كاملة</b>، وبنشرحها ببساطة: لو حصل كذا ← يبقى كذا.
+⚡ <b>تقارير بتفاصيل خاصة</b> للمشتركين بس، وبنشرحها ببساطة: لو حصل كذا ← يبقى كذا.
 
 <b>🌅 قبل الجلسة</b>
 1️⃣ نشرة 9:45: إفصاحات امبارح بالليل، الأسهم اللي آخر يوم حق فيها النهارده، وأجندة اليوم
@@ -148,6 +148,10 @@ async function handle(u, cfg, env) {
   const id = m.from.id;
   if (m.text && m.text.startsWith('/start')) {
     return tg(cfg, 'sendMessage', { chat_id: id, parse_mode: 'HTML', text: `أهلاً بيك في <b>رايل | RAYL</b> 👋\n\nاختار من الأزرار تحت عشان تعرف الخدمات والأسعار وتشترك.`, reply_markup: mainMenu() });
+  }
+  if (m.text && /^\s*[A-Za-z]{3,6}\s*$/.test(m.text)) {
+    const sym = m.text.trim().toUpperCase();
+    return tg(cfg, 'sendMessage', { chat_id: id, parse_mode: 'HTML', text: `🃏 <b>اسأل عن سهم — ${esc(sym)}</b>\n\nالخدمة دي للمشتركين بس، وهتشتغل في نفس البوت ده من <b>1 ديسمبر</b>: تبعت رمز السهم، ويوصلك كارت كامل بالأرقام (آخر شهر، الكبار شهر بشهر، المتوسطات والماكد وRSI، الدعوم والمقاومات، النتايج والإفصاحات) و<b>الخلاصة اللي تهمك</b>.\n\nلو لسه ما اشتركتش 👇`, reply_markup: mainMenu() });
   }
   const s = await getS(env, id);
   if (m.photo || (m.document && /image|pdf/.test(m.document.mime_type || ''))) {
