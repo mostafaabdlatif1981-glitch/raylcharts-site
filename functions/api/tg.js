@@ -93,7 +93,7 @@ async function handle(u, cfg, env) {
     }
     if (d === 'agree') {
       const s = await getS(env, from.id); if (!s.plan) return; s.step = 'receipt'; s.agreed = Date.now(); await putS(env, from.id, s);
-      return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: `💳 <b>طريقة الدفع</b>\n\nحوّل <b>${PLANS[s.plan].price.split(' (')[0]}</b> على إنستاباي (الأفضل لأنه بيوصل فورًا):\n${cfg.instapay || '—'}\n\n📸 بعد التحويل <b>ابعت صورة الوصل هنا</b> في الشات.\n\n🔒 لينك القناة بيتبعتلك بعد ما المبلغ يوصل ونتأكد منه، مش بمجرد الصورة.` });
+      return tg(cfg, cfg.qr ? 'sendPhoto' : 'sendMessage', { chat_id: chat, parse_mode: 'HTML', ...(cfg.qr ? { photo: cfg.qr } : {}), [cfg.qr ? 'caption' : 'text']: `💳 <b>طريقة الدفع</b>\n\nحوّل <b>${PLANS[s.plan].price.split(' (')[0]}</b> على إنستاباي (الأفضل لأنه بيوصل فورًا):\n${cfg.instapay || '—'}\n\n📸 بعد التحويل <b>ابعت صورة الوصل هنا</b> في الشات.\n\n🔒 لينك القناة بيتبعتلك بعد ما المبلغ يوصل ونتأكد منه، مش بمجرد الصورة.` });
     }
     return;
   }
