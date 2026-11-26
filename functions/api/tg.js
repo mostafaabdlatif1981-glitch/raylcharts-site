@@ -99,8 +99,29 @@ export async function onRequestPost({ request, env }) {
   const cfg = JSON.parse((await env.SUBS.get('tg_cfg')) || '{}');
   if (!cfg.token || request.headers.get('x-telegram-bot-api-secret-token') !== cfg.secret) return new Response('no', { status: 403 });
   const u = await request.json();
+  try { await logEv(env, u); } catch (e) {}
   try { await handle(u, cfg, env); } catch (e) { /* نرجّع 200 عشان تليجرام ما يعيدش */ }
   return new Response('ok');
+}
+
+
+// سجل كل طلب للبوت (قاعدة البيانات على الماك بتسحبه من /api/tglog)
+async function logEv(env, u) {
+  let ev = null;
+  if (u.callback_query) { const q = u.callback_query; ev = { kind: 'button', uid: q.from.id, name: [q.from.first_name, q.from.last_name].filter(Boolean).join(' '), user: q.from.username || '', data: q.data || '' }; }
+  else if (u.message && u.message.chat && u.message.chat.type === 'private') {
+    const m = u.message, t = (m.text || '').trim();
+    let kind = 'text', data = '';
+    if (t.startsWith('/')) { kind = 'command'; data = t.slice(0, 40); }
+    else if (/^[A-Za-z]{3,6}$/.test(t)) { kind = 'ask_stock'; data = t.toUpperCase(); }
+    else if (m.photo || m.document) { kind = 'receipt'; }
+    else if (m.contact) { kind = 'contact'; }
+    else { data = t.slice(0, 200); }
+    ev = { kind, uid: m.from.id, name: [m.from.first_name, m.from.last_name].filter(Boolean).join(' '), user: m.from.username || '', data };
+  }
+  if (!ev) return;
+  const ts = Date.now(); ev.ts = ts;
+  await env.SUBS.put('ev_' + String(ts).padStart(14, '0') + '_' + Math.random().toString(36).slice(2, 7), JSON.stringify(ev), { expirationTtl: 60 * 60 * 24 * 120 });
 }
 
 async function handle(u, cfg, env) {
