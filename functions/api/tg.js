@@ -199,7 +199,12 @@ async function handle(u, cfg, env) {
   }
   const s = await getS(env, id);
   if (m.photo || (m.document && /image|pdf/.test(m.document.mime_type || ''))) {
-    if (!s.plan || !s.agreed) return tg(cfg, 'sendMessage', { chat_id: id, text: 'اختار الباقة الأول من الأزرار 👇', reply_markup: mainMenu() });
+    if (!s.plan || !s.agreed) {
+      const fid = m.photo ? m.photo[m.photo.length - 1].file_id : m.document.file_id;
+      const capx = `⚠️ <b>صورة وصلت من غير ما يختار باقة</b>\nالاسم: ${esc([m.from.first_name, m.from.last_name].filter(Boolean).join(' '))}${m.from.username ? ' (@' + esc(m.from.username) + ')' : ''}\nرقم تليجرام: ${id}\n\nلو دي فلوس وصلت، قوله يختار الباقة ويبعت الصورة تاني.`;
+      if (m.photo) await tg(cfg, 'sendPhoto', { chat_id: cfg.admin, photo: fid, caption: capx, parse_mode: 'HTML' }); else await tg(cfg, 'sendDocument', { chat_id: cfg.admin, document: fid, caption: capx, parse_mode: 'HTML' });
+      return tg(cfg, 'sendMessage', { chat_id: id, text: '📸 الصورة وصلتنا. عشان نفعّل اشتراكك، اختار الباقة من «💰 الأسعار والاشتراك» ودوس موافق، وبعدها ابعت الصورة تاني هنا 👇', reply_markup: mainMenu() });
+    }
     s.receipt = m.photo ? { t: 'photo', f: m.photo[m.photo.length - 1].file_id } : { t: 'doc', f: m.document.file_id };
     s.step = 'phone'; s.name = [m.from.first_name, m.from.last_name].filter(Boolean).join(' '); s.username = m.from.username || '';
     // يوصل لمصطفى فورًا أول ما الصورة توصل
