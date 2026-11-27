@@ -171,7 +171,7 @@ h1{font-size:50px;font-weight:800;margin:8px 0;line-height:1.3}
 PN=[0]
 def page(head,body):
     PN[0]+=1
-    return f'''<div class="pg paper"><div class="wmk">{LOGO}</div><div class="hd"><div class="lg">{LOGO}<span class="at">@raylcharts</span></div><div class="hh">{head}<br>تحديث بتاريخ 20/11/2026 • إقفال الخميس 19 نوفمبر 2026</div></div>
+    return f'''<div class="pg paper"><div class="wmk">{LOGO}</div><div class="hd"><div class="lg">{LOGO}<span class="at">@raylcharts</span></div><div class="hh">{head}<br>تحديث بتاريخ 27/11/2026 • إقفال الخميس 26 نوفمبر 2026</div></div>
 <div class="bd">{body}</div>
 <div class="ft"><span class="pn">{PN[0]}</span><span>f RAYL</span><span>X @raylcharts</span><span>raylcharts.com</span><span>#بورصة_بجد</span></div></div>'''
 WARN='تنويه: تقسيم القطاع والأسهم حسب تطبيق ثندر (Thndr). تحذير مهم: كون السهم أقل من السعر العادل أو المتحفظ، أو قريب منهم، مش معناه إنه مناسب للشراء. الشراء في الوقت الحالي خطر. ادرس السهم من كل الجوانب (الفنية والأساسية والمالية)، وكون مستعد لو السهم نزل.'
@@ -190,7 +190,7 @@ def stock_pages(t):
     pe=(c/fv['eps']) if fv and fv['eps']>0 else None
     v20=sum(D['v'][-20:])/20;vr=D['v'][-1]/v20 if v20 else 0
     # bullets
-    b=[f'السهم قفل <b class="n">{f2(c)}</b> {cur} يوم الخميس 19/11 (<b class="n">{A["day"]*100:+.2f}%</b> في اليوم، و<b class="n">{A["wk"]*100:+.2f}%</b> في أسبوع 15–19 نوفمبر).']
+    b=[f'السهم قفل <b class="n">{f2(c)}</b> {cur} يوم الخميس 26/11 (<b class="n">{A["day"]*100:+.2f}%</b> في اليوم، و<b class="n">{A["wk"]*100:+.2f}%</b> في أسبوع 22–26 نوفمبر).']
     b.append(f'قيمة التداول في الأسبوع حوالي <b>{money(A["val5"])}</b> {cur}، وحجم آخر جلسة <b class="n">×{vr:.1f}</b> من متوسط 20 جلسة.')
     b.append(f'السعر {"فوق" if c>I["S20"] else "تحت"} متوسط 20 (<span class="n">{f2(I["S20"])}</span>) {("و"+("فوق" if c>I["S50"] else "تحت")+" متوسط 50 (<span class=\"n\">"+f2(I["S50"])+"</span>)") if I["S50"] else " (ملهوش متوسط 50 لسه: سهم جديد)"}، وبعيد <b class="n">{A["fromhi"]*100:.1f}%</b> عن أعلى سعر في آخر 65 جلسة.')
     if fv:
@@ -238,7 +238,7 @@ def stock_pages(t):
         d=(c/v-1)*100;up=c>v
         ma+=f'<tr><td><b class="n">{nm}</b><br><small>{lab}</small></td><td class="n">{f2(v)}</td><td>{pct(d)}</td><td><span class="tag {"g" if up else "r"}">{"فوقه" if up else "تحته"}</span></td><td>{"السعر أعلى من المتوسط = الاتجاه ده في صالح الشراء" if up else "السعر أقل من المتوسط = الاتجاه ده لسه ضعيف"}</td></tr>'
     p3=f'''<div class="sec"><span class="st">📈 شارت السهم: آخر 65 جلسة</span><div class="lgd">شموع يومية • <span style="color:#2563EB">━ متوسط 20</span> • <span style="color:#EA580C">━ متوسط 50</span> • <span style="color:#DC2626">■ مقاومة</span> • <span style="color:#16A34A">■ دعم</span> • الأصفر = الأسبوع اللي فات</div>{chart(t,D,I,R,S)}</div>
-<div class="sec"><span class="st">🗓️ أداء الأسبوع (15–19 نوفمبر)</span><table><tr><th>اليوم</th><th>فتح</th><th>أعلى</th><th>أقل</th><th>إقفال</th><th>التغير</th><th>الحجم</th></tr>{wk}</table>
+<div class="sec"><span class="st">🗓️ أداء الأسبوع (22–26 نوفمبر)</span><table><tr><th>اليوم</th><th>فتح</th><th>أعلى</th><th>أقل</th><th>إقفال</th><th>التغير</th><th>الحجم</th></tr>{wk}</table>
 <div style="font-size:20px;font-weight:700;margin-top:8px">حصيلة الأسبوع: {pct(A["wk"]*100)} • أعلى سعر في الأسبوع <span class="n">{f2(max(D["h"][-5:]))}</span> وأقل سعر <span class="n">{f2(min(D["l"][-5:]))}</span></div></div>
 <div class="sec"><span class="st">📐 المتوسطات المتحركة</span><table><tr><th>المتوسط</th><th>القيمة</th><th>السعر مقارنة بيه</th><th>الإشارة</th><th>يعني إيه</th></tr>{ma}</table></div>'''
     # page4 indicators + SR + scenarios
@@ -266,7 +266,7 @@ def stock_pages(t):
 <tr><td>🔴 <b>نزول</b></td><td><b>{pd}%</b></td><td class="n">{f2(s2[0])} – {f2(s1[1][0])}</td><td>إقفال تحت <span class="n">{f2(s1[1][0])}</span></td></tr>'''
     p4=f'''<div class="sec"><span class="st">🧭 المؤشرات الفنية</span><table><tr><th>المؤشر</th><th>القيمة</th><th>الحالة</th><th>الشرح</th></tr>{it}</table></div>
 <div class="sec"><span class="st">🧱 الدعم والمقاومة</span><table><tr><th>المستوى</th><th>المنطقة</th><th>جاية منين</th></tr>{sr}</table></div>
-<div class="sec"><span class="st">🔮 توقعاتنا للأسبوع الجاي (22–26 نوفمبر)</span><table><tr><th>السيناريو</th><th>الاحتمال</th><th>النطاق</th><th>اللي يأكده</th></tr>{sc}</table>
+<div class="sec"><span class="st">🔮 توقعاتنا للأسبوع الجاي (29 نوفمبر–3 ديسمبر)</span><table><tr><th>السيناريو</th><th>الاحتمال</th><th>النطاق</th><th>اللي يأكده</th></tr>{sc}</table>
 <div class="note">⚠️ النسب دي تقدير رايل للأسبوع الجاي بس، مش مضمونة. السيناريو بيتلغي لو السهم قفل برا النطاق بتاعه.</div></div>'''
     return [page(head,p1),page(head,p2),page(head,p3),page(head,p4)]
 # ---------- sector pages
@@ -282,7 +282,7 @@ def sector_pages():
     best=max(egp,key=lambda t:ALL[t]['wk']);worst=min(egp,key=lambda t:ALL[t]['wk'])
     rank=sorted(ORDER,key=lambda t:-(ALL[t]['p'][0]-ALL[t]['p'][2]))
     kp=f'<div class="kp"><div><small>عدد الأسهم</small><b class="n">{len(ORDER)}</b></div><div><small>أداء الأسبوع (مرجّح بالقيمة السوقية)</small><b>{pct(wavg)}</b></div><div><small>طلع / نزل</small><b class="n">{up} / {dn}</b></div><div><small>قيمة تداول الأسبوع</small><b style="font-size:24px">{money(tv)}</b></div></div>'
-    bl=[f'القطاع فيه {len(ORDER)} أسهم، {CFG["big"]}'.replace('فيه 1 أسهم، ','فيه سهم واحد بالجنيه: ')+f'، وقيمة تداول الأسبوع (15–19 نوفمبر) حوالي <b>{money(tv)}</b> جنيه.',
+    bl=[f'القطاع فيه {len(ORDER)} أسهم، {CFG["big"]}'.replace('فيه 1 أسهم، ','فيه سهم واحد بالجنيه: ')+f'، وقيمة تداول الأسبوع (22–26 نوفمبر) حوالي <b>{money(tv)}</b> جنيه.',
         f'في الأسبوع: {("سهم واحد طلع" if up==1 else str(up)+" أسهم طلعت")} و{("سهم واحد نزل" if dn==1 else "مفيش سهم نزل" if dn==0 else str(dn)+" نزلت")}. الأحسن <b>{E(INFO[best]["name"])}</b> (<span class="n">{ALL[best]["wk"]*100:+.1f}%</span>) {"والأقل صعودا" if ALL[worst]["wk"]>0 else "والأضعف"} <b>{E(INFO[worst]["name"])}</b> (<span class="n">{ALL[worst]["wk"]*100:+.1f}%</span>).',
         f'مكرر ربحية القطاع (القيمة السوقية ÷ الأرباح للشركات المتقيّمة) حوالي <b class="n">{mcap/earn:.1f}</b> مرة، والوسيط <b class="n">{statistics.median(pes):.1f}</b>، مقابل حوالي <b class="n">16.4</b> لوسيط السوق كله.',
         CFG['res'],
@@ -297,8 +297,8 @@ def sector_pages():
     if osd: OUT.append('أسهم واقعة زيادة (RSI تحت 35) وممكن ترتد: '+'، '.join(f'<b>{E(INFO[t]["name"])}</b>' for t in osd[:5])+'.')
     if obt: OUT.append('أسهم سخنة وممكن تجني أرباح: '+'، '.join(f'<b>{E(INFO[t]["name"])}</b>' for t in obt[:5])+'.')
     s1=f'''<div style="margin-top:40px;text-align:center"><div style="display:inline-block;background:#FED7AA;border-radius:18px;padding:6px 30px"><h1 style="font-size:62px;margin:0">تقرير قطاع {SECT}</h1></div>
-<div style="font-size:26px;font-weight:700;color:#33503f;margin-top:14px">{CFG['SUB']} • {len(ORDER)} أسهم • إقفال الخميس 19 نوفمبر 2026</div>
-<div style="font-size:24px;font-weight:800;margin-top:10px;display:inline-block;border:2.5px solid #1F3A2C;border-radius:14px;padding:4px 20px">التوقعات صالحة للأسبوع الجاي بس: 22–26 نوفمبر 2026</div>
+<div style="font-size:26px;font-weight:700;color:#33503f;margin-top:14px">{CFG['SUB']} • {len(ORDER)} أسهم • إقفال الخميس 26 نوفمبر 2026</div>
+<div style="font-size:24px;font-weight:800;margin-top:10px;display:inline-block;border:2.5px solid #1F3A2C;border-radius:14px;padding:4px 20px">التوقعات صالحة للأسبوع الجاي بس: 29 نوفمبر–3 ديسمبر 2026</div>
 <div style="font-size:21px;font-weight:700;color:#33503f;margin-top:10px">ℹ️ تنويه: تقسيم القطاع والأسهم اللي فيه حسب تطبيق ثندر (Thndr)</div></div>{kp}
 <div class="sec"><span class="st">📌 الخلاصة</span><ul class="b">{"".join(f"<li>{x}</li>" for x in bl)}</ul></div>
 <div class="sec"><span class="st">📚 في التقرير ده</span><ul class="b"><li>جدول مقارنة لكل أسهم القطاع: الأداء، والسيولة، ومكرر الربحية، والقيمة العادلة.</li><li>توقعات القطاع والأسهم للأسبوع الجاي، وترتيب الأسهم من الأقوى للأضعف.</li><li>4 صفحات لكل سهم: الخلاصة والنشاط، والنتايج والتقييم، والشارت وأداء الأسبوع، والمؤشرات والدعم والمقاومة والسيناريوهات.</li></ul></div>'''
@@ -310,19 +310,19 @@ def sector_pages():
         if fv:
             x=A['c']/fv['fv']-1;gp=(f'<span class="pill up">أرخص {abs(x)*100:.0f}%</span>' if x<0 else f'<span class="pill dn">أغلى {x*100:.0f}%</span>')
         tb+=f'<tr><td><b>{E(INFO[t]["name"])}</b><br><small class="n">{t}{" • بالدولار" if usd else ""}</small></td><td class="n"><b>{f2(A["c"])}</b></td><td>{pct(A["wk"]*100)}</td><td>{money(A["val5"])}</td><td class="n">{pe}</td><td class="n">{f2(fv["c"]) if fv else "—"}</td><td class="n" style="background:#FEF3C7">{f2(fv["fv"]) if fv else "—"}</td><td class="n">{f2(fv["o"]) if fv else "—"}</td><td>{gp}</td></tr>'
-    s2=f'''<div class="sec"><span class="st">🧾 جدول مقارنة أسهم القطاع</span><table style="font-size:18px"><tr><th>السهم</th><th>إقفال 19/11</th><th>الأسبوع</th><th>قيمة تداول الأسبوع</th><th>مكرر الربحية</th><th>المتحفظ</th><th>العادل</th><th>المتفائل</th><th>السعر مقابل العادل</th></tr>{tb}</table>
+    s2=f'''<div class="sec"><span class="st">🧾 جدول مقارنة أسهم القطاع</span><table style="font-size:18px"><tr><th>السهم</th><th>إقفال 26/11</th><th>الأسبوع</th><th>قيمة تداول الأسبوع</th><th>مكرر الربحية</th><th>المتحفظ</th><th>العادل</th><th>المتفائل</th><th>السعر مقابل العادل</th></tr>{tb}</table>
 <div style="font-size:17px;font-weight:600;margin-top:8px">القيمة العادلة من تحديث رايل حتى إقفال 12/11/2026. الأسهم اللي مكتوب قدامها «—» ما اتقيّمتش لأن بياناتها المالية المنشورة مش كفاية.</div></div>'''
     # weekly bar chart
     mx=max(abs(ALL[t]['wk']) for t in ORDER)*100 or 1
     bars=''.join(f'<div style="display:flex;align-items:center;gap:12px;margin:4px 0;font-size:18px;font-weight:700"><span style="width:300px">{E(INFO[t]["name"])}</span><div style="flex:1;display:flex;direction:ltr"><div style="width:50%;display:flex;justify-content:flex-end">{"" if ALL[t]["wk"]>=0 else f"<div style=\"height:20px;width:{abs(ALL[t][chr(119)+chr(107)])*100/mx*100:.0f}%;background:#F87171;border-radius:6px 0 0 6px\"></div>"}</div><div style="width:50%;border-left:2px solid #1F3A2C">{"" if ALL[t]["wk"]<0 else f"<div style=\"height:20px;width:{ALL[t][chr(119)+chr(107)]*100/mx*100:.0f}%;background:#4ADE80;border-radius:0 6px 6px 0\"></div>"}</div></div><span class="n" style="width:90px">{ALL[t]["wk"]*100:+.1f}%</span></div>' for t in sorted(ORDER,key=lambda t:-ALL[t]['wk']))
-    s2+=f'<div class="sec"><span class="st">🗓️ أداء الأسبوع (15–19 نوفمبر)</span>{bars}</div>'
+    s2+=f'<div class="sec"><span class="st">🗓️ أداء الأسبوع (22–26 نوفمبر)</span>{bars}</div>'
     rk=''
     for i,t in enumerate(rank):
         A=ALL[t];pu,pr,pd=A['p'];R,S=A['R'],A['S'];lab_=scen(A["p"])
         rk+=f'<tr><td><b class="n">{i+1}</b></td><td><b>{E(INFO[t]["name"])}</b></td><td><span class="tag {"g" if lab_=="صعود" else "r" if lab_=="نزول" else "y"}">{lab_}</span></td><td class="n">{pu}% / {pr}% / {pd}%</td><td class="n">{f2(S[0][1][0])}</td><td class="n">{f2(R[0][1][1])}</td></tr>'
     upw=sum(ALL[t]['p'][0] for t in egp)/len(egp);dnw=sum(ALL[t]['p'][2] for t in egp)/len(egp)
     sv='تذبذب مع ميل للصعود' if upw>dnw+5 else 'تذبذب مع ميل للنزول' if dnw>upw+5 else 'تذبذب في نطاق'
-    s3=f'''<div class="sec"><span class="st">🔮 توقعات القطاع للأسبوع الجاي (22–26 نوفمبر)</span><div style="font-size:24px;font-weight:700;line-height:1.75">
+    s3=f'''<div class="sec"><span class="st">🔮 توقعات القطاع للأسبوع الجاي (29 نوفمبر–3 ديسمبر)</span><div style="font-size:24px;font-weight:700;line-height:1.75">
 السيناريو الأقرب للقطاع: <span class="y" style="background:#FDE68A;padding:0 8px">{sv}</span>. متوسط احتمال الصعود لأسهم القطاع <b class="n">{upw:.0f}%</b> مقابل <b class="n">{dnw:.0f}%</b> للنزول.<br>
 {"".join("• "+x+"<br>" for x in OUT)}</div></div>
 <div class="sec"><span class="st">🏁 ترتيب الأسهم للأسبوع الجاي (من الأقوى للأضعف)</span><table><tr><th>#</th><th>السهم</th><th>الأقرب</th><th>صعود / تذبذب / نزول</th><th>الدعم الأول</th><th>المقاومة الأولى</th></tr>{rk}</table>
@@ -349,7 +349,7 @@ def sector_pages():
     return [page(head,s1),page(head,s2),page(head,s3)]
 pages=sector_pages()
 for t in ORDER: pages+=stock_pages(t)
-last='<div class="sec" style="margin-top:40px"><span class="st">📎 المصادر والملاحظات</span><ul class="b"><li>تقسيم القطاع والأسهم اللي فيه: حسب تطبيق ثندر (Thndr).</li><li>أسعار الإقفال وتغيّر اليوم: موقع البورصة المصرية، والمؤشرات الفنية: TradingView، إقفال الخميس 19/11/2026.</li><li>النتايج (المنشورة لحد 12/11/2026): إفصاحات الشركات على موقع البورصة المصرية (beta.egx.com.eg) وTradingView.</li><li>القيم العادلة: تحديث رايل للقيم العادلة حتى إقفال 12/11/2026 (raylcharts.com/fairvalue).</li><li>التوقعات للأسبوع الجاي بس (22–26 نوفمبر)، وهنحدّث القطاع ده تاني في دورة القطاعات الجاية.</li></ul></div><div class="warn" style="font-size:24px">'+WARN+'</div>'
+last='<div class="sec" style="margin-top:40px"><span class="st">📎 المصادر والملاحظات</span><ul class="b"><li>تقسيم القطاع والأسهم اللي فيه: حسب تطبيق ثندر (Thndr).</li><li>أسعار الإقفال وتغيّر اليوم: موقع البورصة المصرية، والمؤشرات الفنية: TradingView، إقفال الخميس 26/11/2026.</li><li>النتايج (المنشورة لحد 12/11/2026): إفصاحات الشركات على موقع البورصة المصرية (beta.egx.com.eg) وTradingView.</li><li>القيم العادلة: تحديث رايل للقيم العادلة حتى إقفال 12/11/2026 (raylcharts.com/fairvalue).</li><li>التوقعات للأسبوع الجاي بس (29 نوفمبر–3 ديسمبر)، وهنحدّث القطاع ده تاني في دورة القطاعات الجاية.</li></ul></div><div class="warn" style="font-size:24px">'+WARN+'</div>'
 pages.append(page(f'تقرير قطاع: {SECT}',last))
 doc=f'<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><style>{PCSS}@page{{size:1240px 1754px;margin:0}}</style></head><body>{"".join(pages)}</body></html>'
 open('/home/claude/sec1120p/report.html','w').write(doc)
