@@ -40,7 +40,8 @@ async function subStatus(env, uid) {
 
 async function makeTopic(cfg, env, from) {
   const name = fullName(from);
-  const t = await tg(cfg, 'createForumTopic', { chat_id: cfg.group, name: `${name}`.slice(0, 120) });
+  const label = name.replace(/[\s.\-_]/g, '').length >= 2 ? name : (from.username ? '@' + from.username : 'مشترك ' + from.id);
+  const t = await tg(cfg, 'createForumTopic', { chat_id: cfg.group, name: label.slice(0, 120) });
   if (!t.ok) return null;
   const th = t.result.message_thread_id;
   await env.SUBS.put('askt_' + from.id, String(th));
