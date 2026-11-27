@@ -1,5 +1,5 @@
 // بوت الأسئلة @AskRaylBot («اسأل رايل | Ask RAYL»)
-// المشترك يكتب سؤاله أو يبعت صورة للبوت ← يوصل في جروب «دعم رايل» في موضوع (Topic) خاص بيه.
+// للمشتركين بس (من 27/11). المشترك يكتب سؤاله أو يبعت صورة للبوت ← يوصل في جروب «دعم رايل» في موضوع (Topic) خاص بيه.
 // مصطفى يرد جوه الموضوع ← البوت يوصّل الرد للمشترك باسم رايل. الأرقام مخفية في الاتجاهين.
 // أي رسالة في الموضوع بتبدأ بـ # ملاحظة داخلية ما بتتبعتش.
 // الإعداد في KV (SUBS) تحت ask_cfg: {token, secret, group}. بيتحط من /api/askset (محمي بـ SEND_KEY).
@@ -38,6 +38,22 @@ async function subStatus(env, uid) {
   } catch (e) { return '—'; }
 }
 
+// الخدمة للمشتركين بس (قرار مصطفى 27/11): غير المشترك ياخد رد يوجّهه للاشتراك ورسالته ما توصلش الجروب
+async function isActive(env, uid) {
+  try {
+    const tc = JSON.parse((await env.SUBS.get('tg_cfg')) || '{}');
+    if (tc.admin && String(tc.admin) === String(uid)) return true;
+    const list = JSON.parse((await env.SUBS.get('tg_subs')) || '[]');
+    return list.some(a => String(a.uid) === String(uid) && !a.removed && a.until > Date.now());
+  } catch (e) { return false; }
+}
+const NOSUB = `خدمة <b>اسأل رايل</b> للمشتركين في <b>رايل برو</b> بس 🙏
+
+لو عايز تعرف الخدمات والأسعار وتشترك، دوس الزرار تحت.
+
+ولو انت مشترك وشايف الرسالة دي، ابعت صورة التحويل على @RaylChartsBot ونظبطها لك.`;
+const NOSUB_KB = { inline_keyboard: [[{ text: '💰 الاشتراك في رايل برو', url: 'https://t.me/RaylChartsBot?start=ask' }]] };
+
 async function makeTopic(cfg, env, from) {
   const name = fullName(from);
   const label = name.replace(/[\s.\-_]/g, '').length >= 2 ? name : (from.username ? '@' + from.username : 'مشترك ' + from.id);
@@ -56,6 +72,15 @@ async function makeTopic(cfg, env, from) {
 
 async function fromUser(m, cfg, env) {
   const id = m.from.id;
+  if (!(await isActive(env, id))) {
+    await logEv(env, { kind: 'ask_nosub', uid: id, name: fullName(m.from), user: m.from.username || '', data: (m.text || m.caption || '[رسالة]').slice(0, 200) });
+    const isStart = m.text && m.text.startsWith('/start');
+    if (isStart || !(await env.SUBS.get('askn_' + id))) {
+      await env.SUBS.put('askn_' + id, '1', { expirationTtl: 12 * 3600 });
+      return tg(cfg, 'sendMessage', { chat_id: id, parse_mode: 'HTML', text: NOSUB, reply_markup: NOSUB_KB });
+    }
+    return;
+  }
   if (m.text && m.text.startsWith('/start')) {
     await logEv(env, { kind: 'ask_start', uid: id, name: fullName(m.from), user: m.from.username || '' });
     return tg(cfg, 'sendMessage', { chat_id: id, parse_mode: 'HTML', text: WELCOME });

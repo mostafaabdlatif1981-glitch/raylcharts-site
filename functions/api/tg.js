@@ -98,9 +98,9 @@ const putS = (env, id, s) => env.SUBS.put('tgu_' + id, JSON.stringify(s));
 const esc = (s) => String(s || '').replace(/[<&>]/g, c => ({ '<': '&lt;', '&': '&amp;', '>': '&gt;' }[c]));
 
 function mainMenu() {
-  return kb([[{ text: '📋 الخدمات', callback_data: 'svc' }], [{ text: '🎓 تفاصيل كورس التحليل الفني فيديو', callback_data: 'crs' }], [{ text: '💰 الأسعار والاشتراك', callback_data: 'prc' }], [{ text: '💬 عندك سؤال؟ اسأل رايل', url: 'https://t.me/AskRaylBot' }]]);
+  return kb([[{ text: '📋 الخدمات', callback_data: 'svc' }], [{ text: '🎓 تفاصيل كورس التحليل الفني فيديو', callback_data: 'crs' }], [{ text: '💰 الأسعار والاشتراك', callback_data: 'prc' }], [{ text: '💬 اسأل رايل (للمشتركين)', url: 'https://t.me/AskRaylBot' }]]);
 }
-const ASK_KB = kb([[{ text: '💬 اسأل رايل', url: 'https://t.me/AskRaylBot' }]]);
+const ASK_KB = kb([[{ text: '💬 اسأل رايل (للمشتركين)', url: 'https://t.me/AskRaylBot' }]]);
 
 export async function onRequestPost({ request, env }) {
   const cfg = JSON.parse((await env.SUBS.get('tg_cfg')) || '{}');
@@ -192,7 +192,7 @@ async function handle(u, cfg, env) {
   const m = u.message; if (!m || m.chat.type !== 'private') return;
   const id = m.from.id;
   if (m.text && m.text.startsWith('/start')) {
-    return tg(cfg, 'sendMessage', { chat_id: id, parse_mode: 'HTML', text: `أهلاً بيك في <b>رايل | RAYL</b> 👋\n\nاختار من الأزرار تحت عشان تعرف الخدمات والأسعار وتشترك.\n\n💬 عندك سؤال؟ كلمنا على @AskRaylBot`, reply_markup: mainMenu() });
+    return tg(cfg, 'sendMessage', { chat_id: id, parse_mode: 'HTML', text: `أهلاً بيك في <b>رايل | RAYL</b> 👋\n\nاختار من الأزرار تحت عشان تعرف الخدمات والأسعار وتشترك.\n\n💬 لو انت مشترك وعندك سؤال: @AskRaylBot`, reply_markup: mainMenu() });
   }
   if (m.text && /^\s*[A-Za-z]{3,6}\s*$/.test(m.text)) {
     const sym = m.text.trim().toUpperCase();
@@ -204,7 +204,7 @@ async function handle(u, cfg, env) {
       const fid = m.photo ? m.photo[m.photo.length - 1].file_id : m.document.file_id;
       const capx = `⚠️ <b>صورة وصلت من غير ما يختار باقة</b>\nالاسم: ${esc([m.from.first_name, m.from.last_name].filter(Boolean).join(' '))}${m.from.username ? ' (@' + esc(m.from.username) + ')' : ''}\nرقم تليجرام: ${id}\n\nلو دي فلوس وصلت، قوله يختار الباقة ويبعت الصورة تاني.`;
       if (m.photo) await tg(cfg, 'sendPhoto', { chat_id: cfg.admin, photo: fid, caption: capx, parse_mode: 'HTML' }); else await tg(cfg, 'sendDocument', { chat_id: cfg.admin, document: fid, caption: capx, parse_mode: 'HTML' });
-      return tg(cfg, 'sendMessage', { chat_id: id, text: '📸 الصورة وصلتنا.\n\n• لو دي صورة تحويل: اختار الباقة من «💰 الأسعار والاشتراك» ودوس موافق، وبعدها ابعت الصورة تاني هنا.\n• لو دي صورة محفظة أو شارت وعايز رأينا: ابعتها على @AskRaylBot 👇', reply_markup: kb([[{ text: '💰 الأسعار والاشتراك', callback_data: 'prc' }], [{ text: '💬 اسأل رايل', url: 'https://t.me/AskRaylBot' }]]) });
+      return tg(cfg, 'sendMessage', { chat_id: id, text: '📸 الصورة وصلتنا.\n\n• لو دي صورة تحويل: اختار الباقة من «💰 الأسعار والاشتراك» ودوس موافق، وبعدها ابعت الصورة تاني هنا.\n• لو انت مشترك ودي صورة محفظة أو شارت وعايز رأينا: ابعتها على @AskRaylBot 👇', reply_markup: kb([[{ text: '💰 الأسعار والاشتراك', callback_data: 'prc' }], [{ text: '💬 اسأل رايل (للمشتركين)', url: 'https://t.me/AskRaylBot' }]]) });
     }
     s.receipt = m.photo ? { t: 'photo', f: m.photo[m.photo.length - 1].file_id } : { t: 'doc', f: m.document.file_id };
     s.step = 'phone'; s.name = [m.from.first_name, m.from.last_name].filter(Boolean).join(' '); s.username = m.from.username || '';
@@ -232,7 +232,7 @@ async function handle(u, cfg, env) {
   if (String(id) === String(cfg.admin)) return;
   if (await env.SUBS.get('tgr_' + id)) return;
   await env.SUBS.put('tgr_' + id, '1', { expirationTtl: 12 * 3600 });
-  return tg(cfg, 'sendMessage', { chat_id: id, parse_mode: 'HTML', text: `البوت ده للاشتراك والدفع بس 🙏\n\n💬 لأي سؤال أو استفسار كلمنا على <b>@AskRaylBot</b>، وهنرد عليك هناك.\n📋 ولو عايز القايمة تاني دوس /start`, reply_markup: ASK_KB });
+  return tg(cfg, 'sendMessage', { chat_id: id, parse_mode: 'HTML', text: `البوت ده للاشتراك والدفع بس 🙏\n\n💬 لو انت مشترك وعندك سؤال، كلمنا على <b>@AskRaylBot</b>.\n💰 ولو لسه مش مشترك، دوس /start واختار «الأسعار والاشتراك».`, reply_markup: ASK_KB });
 }
 
 // GET /api/tg?expire=1 (هيدر x-key = SEND_KEY): يطلّع اللي اشتراكهم خلص
