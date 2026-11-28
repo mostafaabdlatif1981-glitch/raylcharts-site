@@ -6,6 +6,7 @@ const PLANS = {
   c: { name: 'كورس التحليل الفني فيديو (لوحده)', price: '3,000 جنيه', days: 0, course: true },
   yc: { name: 'اشتراك سنوي + كورس التحليل الفني فيديو', price: '4,500 جنيه (بدل 6,600: 3,000 اشتراك سنوي + الكورس بـ1,500 بدل 3,000)', days: 365 },
 };
+const SELLABLE = ['m', 'y']; // المتاح للبيع دلوقتي: شهري وسنوي بس (الكورس اتشال 28/11)
 const START_TS = Date.UTC(2026, 11, 1) - 2 * 3600e3; // 1/12/2026 بتوقيت القاهرة
 
 const SERVICES = `📋 <b>خدمات مشتركين رايل</b> (كلها حصرية للمشتركين)
@@ -43,8 +44,6 @@ const PRICES = `💰 <b>الأسعار</b>
 
 • شهري: <b>300 جنيه</b>
 • سنوي: <b>3,000 جنيه</b> دفعة واحدة (بدل 3,600 — شهرين ببلاش)
-• كورس التحليل الفني فيديو لوحده: <b>3,000 جنيه</b>
-• سنوي + كورس التحليل الفني فيديو: <b>4,500 جنيه</b> بدل 6,600 (الكورس بـ1,500 بدل 3,000 — الخصم مع السنوي بس)
 
 اختار الباقة 👇`;
 
@@ -89,6 +88,7 @@ const COURSE = `🎓 <b>كورس التحليل الفني فيديو — أكا
 🔥 أسعار خاصة لأول 500 مشترك بس`;
 
 const kb = (rows) => ({ inline_keyboard: rows });
+const PRICE_KB = kb([[{ text: '📅 شهري — 300', callback_data: 'p_m' }], [{ text: '🗓️ سنوي — 3,000', callback_data: 'p_y' }], [{ text: '📋 الخدمات', callback_data: 'svc' }]]);
 async function tg(cfg, m, p) {
   const r = await fetch(`https://api.telegram.org/bot${cfg.token}/${m}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(p) });
   return r.json();
@@ -98,7 +98,7 @@ const putS = (env, id, s) => env.SUBS.put('tgu_' + id, JSON.stringify(s));
 const esc = (s) => String(s || '').replace(/[<&>]/g, c => ({ '<': '&lt;', '&': '&amp;', '>': '&gt;' }[c]));
 
 function mainMenu() {
-  return kb([[{ text: '📋 الخدمات', callback_data: 'svc' }], [{ text: '🎓 تفاصيل كورس التحليل الفني فيديو', callback_data: 'crs' }], [{ text: '💰 الأسعار والاشتراك', callback_data: 'prc' }], [{ text: '💬 اسأل رايل (للمشتركين)', url: 'https://t.me/AskRaylBot' }]]);
+  return kb([[{ text: '📋 الخدمات', callback_data: 'svc' }], [{ text: '💰 الأسعار والاشتراك', callback_data: 'prc' }], [{ text: '💬 اسأل رايل (للمشتركين)', url: 'https://t.me/AskRaylBot' }]]);
 }
 const ASK_KB = kb([[{ text: '💬 اسأل رايل (للمشتركين)', url: 'https://t.me/AskRaylBot' }]]);
 
@@ -175,11 +175,11 @@ async function handle(u, cfg, env) {
       }
       return;
     }
-    if (d === 'svc') return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: SERVICES, reply_markup: kb([[{ text: '🎓 تفاصيل الكورس', callback_data: 'crs' }], [{ text: '💰 الأسعار والاشتراك', callback_data: 'prc' }]]) });
-    if (d === 'crs') return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: COURSE, reply_markup: kb([[{ text: '🎬 اشترك في الكورس لوحده — 3,000', callback_data: 'p_c' }], [{ text: '🎓 سنوي + الكورس — 4,500', callback_data: 'p_yc' }], [{ text: '💰 كل الأسعار', callback_data: 'prc' }], [{ text: '📋 الخدمات', callback_data: 'svc' }]]) });
-    if (d === 'prc') return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: PRICES, reply_markup: kb([[{ text: '📅 شهري — 300', callback_data: 'p_m' }], [{ text: '🗓️ سنوي — 3,000', callback_data: 'p_y' }], [{ text: '🎬 الكورس لوحده — 3,000', callback_data: 'p_c' }], [{ text: '🎓 سنوي + الكورس — 4,500', callback_data: 'p_yc' }], [{ text: '🎓 تفاصيل الكورس', callback_data: 'crs' }]]) });
+    if (d === 'svc') return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: SERVICES, reply_markup: kb([[{ text: '💰 الأسعار والاشتراك', callback_data: 'prc' }]]) });
+    if (d === 'crs') return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: PRICES, reply_markup: PRICE_KB }); // الكورس اتشال (28/11): الزرار القديم يودي للأسعار
+    if (d === 'prc') return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: PRICES, reply_markup: PRICE_KB });
     if (d.startsWith('p_')) {
-      const k = d.slice(2); if (!PLANS[k]) return; const s = await getS(env, from.id); s.plan = k; s.step = 'terms'; await putS(env, from.id, s);
+      const k = d.slice(2); if (!PLANS[k] || !SELLABLE.includes(k)) return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: PRICES, reply_markup: PRICE_KB }); const s = await getS(env, from.id); s.plan = k; s.step = 'terms'; await putS(env, from.id, s);
       return tg(cfg, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: `اخترت: <b>${PLANS[k].name}</b> — ${PLANS[k].price}\n\n⚠️ <b>قبل التحويل:</b> ${PLANS[k].course && !PLANS[k].days ? 'الكورس' : 'الاشتراك'} مفيهوش إلغاء ولا استرجاع بعد الدفع.`, reply_markup: kb([[{ text: '✅ موافق', callback_data: 'agree' }], [{ text: '↩️ رجوع للأسعار', callback_data: 'prc' }]]) });
     }
     if (d === 'agree') {
